@@ -13,7 +13,7 @@ enum Service: TargetType {
 
     var path: String {
 		switch self {
-		case .getConfig: return "6958eee6"//return "configs/fetch"
+		case .getConfig: return "configs/fetch"
 		}
 	}
 
