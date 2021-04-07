@@ -10,7 +10,7 @@ import Foundation
 
 public final class Hera {
 	private(set) public var apiKey: String?
-    private(set) public var environment: MediationEnvironment = .sandbox
+    private(set) public var environment: HeraEnvironment = .sandbox
 	private(set) public var isUserConsentSet: Bool = false
 	private(set) public var isSbjectToGDPR: Bool  = false
 	private(set) public var isSubjectToCCPA: Bool  = false
@@ -64,7 +64,7 @@ public final class Hera {
 	public func initialize(
 		apiKey: String,
 		userProperties: HeraUserProperties,
-		environment: MediationEnvironment
+		environment: HeraEnvironment
 	) {
 		self.apiKey = apiKey
 		self.environment = environment
