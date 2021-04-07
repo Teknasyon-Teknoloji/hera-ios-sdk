@@ -1,0 +1,12 @@
+use_frameworks!
+
+platform :ios, '10.0'
+
+target 'Hera' do
+pod 'Hera', :path => '../../'
+pod 'AMRSDK'
+pod 'mopub-ios-sdk'
+pod 'MoPub-FacebookAudienceNetwork-Adapters'
+pod 'MoPub-AdMob-Adapters'
+
+end

@@ -1,0 +1,48 @@
+name: Hera
+options:
+  developmentLanguage: en
+  xcodeVersion: 12.3.0
+  usesTabs: true
+  tabWidth: 4
+  indentWidth: 4
+  deploymentTarget:
+    iOS: 10.0
+
+settings:
+  base:
+    PRODUCT_BUNDLE_IDENTIFIER: com.teknasyon.hera
+    SWIFT_VERSION: 5.0
+
+targets:
+  Hera:
+    type: framework
+    platform: iOS
+    deploymentTarget: 10.0
+    sources: [Sources]
+    settings:
+      INFOPLIST_FILE: Info.plist
+    postbuildScripts:
+      - script: swiftlint
+        name: SwiftLint
+  HeraExample:
+    type: application
+    platform: iOS
+    sources: [Example]
+    deploymentTarget: 10.0
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.teknasyon.heraExample
+        ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: $(inherited)
+        DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
+    dependencies:
+      - target: Hera
+    postbuildScripts:
+      - script: swiftlint
+        name: SwiflLint
+  HeraTests:
+    type: bundle.unit-test
+    platform: iOS 
+    scheme: {}
+    sources: [Tests]
+    dependencies:
+     - target: Hera
