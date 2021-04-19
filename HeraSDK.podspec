@@ -22,7 +22,7 @@ Pod::Spec.new do |s|
   s.dependency 'AMRAdapterFacebook'
   s.dependency 'AMRAdapterAdmost'
   
-  s.dependency 'mopub-ios-sdk', '5.16.1'
+  s.dependency 'mopub-ios-sdk', '5.16.2'
   s.dependency 'MoPub-FacebookAudienceNetwork-Adapters'
   s.dependency 'MoPub-AdMob-Adapters'
   
