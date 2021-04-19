@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'HeraSDK'
-  s.version          = '1.3.1'
+  s.version          = '1.3.2'
   s.summary          = 'An abstraction layer used to manage Ads.'
   
   s.description      = <<-DESC
@@ -27,6 +27,8 @@ Pod::Spec.new do |s|
   s.dependency 'MoPub-AdMob-Adapters'
   
   s.dependency 'Moya'
+
+  s.default_subspecs = :none
 
   s.pod_target_xcconfig = { 'ONLY_ACTIVE_ARCH' => 'YES' }
   s.user_target_xcconfig = { 'ONLY_ACTIVE_ARCH' => 'YES' }

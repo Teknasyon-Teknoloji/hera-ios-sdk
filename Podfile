@@ -18,5 +18,6 @@ target 'Hera' do
 
     target 'HeraExample' do 
         pod 'Alamofire'
+        pod 'HeraSDK'
     end
 end
