@@ -17,6 +17,8 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '10.0'
 
   s.default_subspec = 'Core'
+  s.static_framework = true
+  s.swift_version = "5.0"
 
   s.pod_target_xcconfig = { 'ONLY_ACTIVE_ARCH' => 'YES' }
   s.user_target_xcconfig = { 'ONLY_ACTIVE_ARCH' => 'YES' }
@@ -32,8 +34,6 @@ Pod::Spec.new do |s|
     ss.dependency 'AMRAdapterAdmob'
     ss.dependency 'AMRAdapterFacebook'
     ss.source_files = 'Sources/**/*.*'
-    ss.static_framework = true
-    ss.swift_version = "5.0"
     ss.ios.deployment_target = '10.0'
   end
 
