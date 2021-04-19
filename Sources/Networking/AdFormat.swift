@@ -10,7 +10,7 @@ import Foundation
 public enum AdType: String, Decodable {
 	case interstitial
     
-    // @available(*, unavailable, message: "Unsupported Ad type at the moment, choose another option")
+    @available(*, unavailable, message: "Unsupported Ad type at the moment, choose another option")
 	case banner
     
     @available(*, unavailable, message: "Unsupported Ad type at the moment, choose another option")

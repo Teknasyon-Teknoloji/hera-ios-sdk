@@ -29,14 +29,15 @@ final class ViewController: UIViewController, HeraDelegate {
 		// methods
 		Hera.shared.loadAd(ofType: .interstitial, action: action.rawValue)
 	}
-		
-	func heraDidLoadAd(for action: String, adType: AdType) {
-		Hera.shared.showAd(ofType: adType, action: action, on: self)
+	
+	func heraDidLoadAd(for action: String) {
+		Hera.shared.showAd(ofType: .interstitial, action: action, on: self)
 	}
 	
-	func heraDidFailToLoadAd(for action: String, adType: AdType, error: Error) {
+	func heraDidFailToLoadAd(for action: String, error: Error) {
 		print(error.localizedDescription)
 	}
+	
 	func heraDidShowAd(for action: String) { }
 	func heraDidFailToShowAd(for action: String, error: Error) { }
 	func heraDidDismissAd() { }

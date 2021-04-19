@@ -125,7 +125,7 @@ public final class Hera {
 			}
 			
 			guard let adId = config.actions[action]?.unitID else {
-				self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, adType: adType, error: HeraError.actionDoesNotMatch) }
+				self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, error: HeraError.actionDoesNotMatch) }
 				return
 			}
 			
@@ -133,7 +133,7 @@ public final class Hera {
 				try self.checkTimeInterval(from: config, andAction: action, type: adType)
 				
 			} catch {
-				self.notifiyObserver { $0?.heraDidFailToLoadAd(for: action, adType: adType, error: error) }
+				self.notifiyObserver { $0?.heraDidFailToLoadAd(for: action, error: error) }
 				return
 			}
             
@@ -143,7 +143,7 @@ public final class Hera {
             
             guard self.state != .loading else {
                 Logger.log(.debug, "Trying to load ad while another load operation is in progress")
-				self.notifiyObserver { $0?.heraDidFailToLoadAd(for: action, adType: adType, error: HeraError.anotherOperationInProgress) }
+				self.notifiyObserver { $0?.heraDidFailToLoadAd(for: action, error: HeraError.anotherOperationInProgress) }
                 return
             }
             
@@ -173,7 +173,7 @@ public final class Hera {
 	///   -  action: the action needs to be performed.
 	///   - type: Ad type
 	///   - controller: The controller to present ads on it,
-	public func showAd(ofType type: AdType, action: String, on presenter: AdsPresenter) {
+	public func showAd(ofType type: AdType, action: String, on controller: UIViewController) {
 		guard
 			let config = config,
 			let adsProvider = adsProvider else {
@@ -185,35 +185,27 @@ public final class Hera {
 			try checkTimeInterval(from: config, andAction: action, type: type)
 			
 		} catch let error {
-			notifiyObserver { $0?.heraDidFailToShowAd(for: action, adType: type, error: error) }
+			notifiyObserver { $0?.heraDidFailToShowAd(for: action, error: error) }
             return
 		}
 
         guard self.state != .showing else {
             Logger.log(.debug, "Trying to show ad while another ad is being shown.")
-			self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, adType: type, error: HeraError.anotherAdIsBeingShown)}
+			self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, error: HeraError.anotherAdIsBeingShown)}
             return
         }
-        Logger.log(.debug, type, action)
+		
 		guard let adType = config.actions[action]?.type, type == adType else {
-			self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, adType: type, error: HeraError.actionDoesNotMatch) }
+			self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, error: HeraError.actionDoesNotMatch) }
 			return
 		}
 		
 		DispatchQueue.main.async {
 			switch adType {
 			case .interstitial:
-				guard let controller = presenter.adsViewController else {
-					self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, adType: adType, error: HeraError.wrongPresenterType)}
-					return
-				}
 				adsProvider.showInterstitial(on: controller)
 			case .banner:
-				guard let view = presenter.adsView else {
-					self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, adType: adType, error: HeraError.wrongPresenterType)}
-					return
-				}
-				adsProvider.showBanner(on: view)
+				adsProvider.showBanner(on: controller.view)
 			case .rewarededAd:
 				break
 			case .nativeAd:
@@ -302,23 +294,23 @@ private extension Hera {
 			guard let self = self else { return }
 			Logger.log(.debug, "Mediation Manager Did Recived Event \(event)")
 			switch event {
-			case let .didLoad(action, adType):
+			case let .didLoad(action):
                 self.state = .ready
-				self.notifiyObserver { $0?.heraDidLoadAd(for: action, adType: adType) }
-			case let .didFailToLoad(action, adType, error):
+				self.notifiyObserver { $0?.heraDidLoadAd(for: action) }
+			case let .didFailToLoad(action, error):
                 self.state = .ready
-				self.notifiyObserver { $0?.heraDidFailToLoadAd(for: action, adType: adType, error: error) }
-			case let .didShow(action, adType):
+				self.notifiyObserver { $0?.heraDidFailToLoadAd(for: action, error: error) }
+			case let .didShow(action):
                 self.state = .showing
 				self.lastAdShowDate = Date() // We need to set it in this place in order to prevent other ads from being showed before the current ad is closed
-				self.notifiyObserver { $0?.heraDidShowAd(for: action, adType: adType) }
+				self.notifiyObserver { $0?.heraDidShowAd(for: action) }
 			case .dismissed:
                 self.state = .ready
 				self.lastAdShowDate = Date()
 				self.notifiyObserver { $0?.heraDidDismissAd() }
-			case let .didFailToShow(action, adType, error):
+			case let .didFailToShow(action, error):
 				self.state = .ready
-				self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, adType: adType, error: error) }
+				self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, error: error) }
 			default: ()
 			}
 		}

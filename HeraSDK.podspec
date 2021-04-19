@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'HeraSDK'
-  s.version          = '1.3.0'
+  s.version          = '1.3.1'
   s.summary          = 'An abstraction layer used to manage Ads.'
   
   s.description      = <<-DESC
@@ -22,7 +22,7 @@ Pod::Spec.new do |s|
   s.dependency 'AMRAdapterFacebook'
   s.dependency 'AMRAdapterAdmost'
   
-  s.dependency 'mopub-ios-sdk', '5.16.1'
+  s.dependency 'mopub-ios-sdk', '5.16.2'
   s.dependency 'MoPub-FacebookAudienceNetwork-Adapters'
   s.dependency 'MoPub-AdMob-Adapters'
   

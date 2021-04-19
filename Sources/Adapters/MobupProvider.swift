@@ -122,26 +122,26 @@ extension MobupProvider: MPAdViewDelegate {
 	}
 	
 	func adViewDidLoadAd(_ view: MPAdView!, adSize: CGSize) {
-		adEventHandler?(.didLoad(action: bannerAction, adType: .banner))
+		adEventHandler?(.didLoad(action: bannerAction))
 	}
 	
 	func adView(_ view: MPAdView!, didFailToLoadAdWithError error: Error!) {
-		adEventHandler?(.didFailToLoad(action: bannerAction, adType: .banner, error: error))
+		adEventHandler?(.didFailToLoad(action: bannerAction, error: error))
 	}
 }
 
 extension MobupProvider: MPInterstitialAdControllerDelegate {
 	func interstitialDidLoadAd(_ interstitial: MPInterstitialAdController!) {
 		self.interstitial = interstitial
-		adEventHandler?(.didLoad(action: interstitialAction, adType: .interstitial))
+		adEventHandler?(.didLoad(action: interstitialAction))
 	}
 	
 	func interstitialDidFail(toLoadAd interstitial: MPInterstitialAdController!, withError error: Error!) {
-		adEventHandler?(.didFailToLoad(action: interstitialAction, adType: .interstitial, error: error))
+		adEventHandler?(.didFailToLoad(action: interstitialAction, error: error))
 	}
 	
 	func interstitialDidAppear(_ interstitial: MPInterstitialAdController!) {
-		adEventHandler?(.didShow(action: interstitialAction, adType: .interstitial))
+		adEventHandler?(.didShow(action: interstitialAction))
 	}
 	
 	func interstitialDidDisappear(_ interstitial: MPInterstitialAdController!) {

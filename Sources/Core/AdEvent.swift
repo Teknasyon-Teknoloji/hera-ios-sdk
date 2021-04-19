@@ -9,10 +9,10 @@ import Foundation
 
 /// Possible ad events
 public enum AdEvent {
-	case didLoad(action: String, adType: AdType)
-    case didFailToLoad(action: String, adType: AdType, error: Error)
-	case didShow(action: String, adType: AdType)
-	case didFailToShow(action: String, adType: AdType, error: Error)
+	case didLoad(action: String)
+    case didFailToLoad(action: String, error: Error)
+	case didShow(action: String)
+	case didFailToShow(action: String, error: Error)
 	case didFailToPlay
 	case willAppear
 	case didAppear
