@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'HeraSDK'
-  s.version          = '1.3.0'
+  s.version          = '1.3.1'
   s.summary          = 'An abstraction layer used to manage Ads.'
   
   s.description      = <<-DESC
