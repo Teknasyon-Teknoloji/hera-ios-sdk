@@ -9,6 +9,7 @@ import UIKit
 import AMRSDK
 
 final class AMRProvider: NSObject, AdsProvider {
+
 	var adEventHandler: ((AdEvent) -> Void)?
 	
 	private let appID: String
@@ -54,15 +55,16 @@ final class AMRProvider: NSObject, AdsProvider {
     
     func loadBanner(id: String, keywords: String?, action: String) {
         banner = AMRBanner(forZoneId: id)
-        banner.bannerWidth = UIScreen.main.bounds.size.width
+        banner.bannerWidth = 320 
         banner.delegate = self
         banner.load()
         bannerAction = action
+        banner.viewController = UIApplication.topViewController()
     }
     
     func loadInterstitial(id: String, keywords: String?, action: String) {
 		if let inter = interstitial, inter.isLoading {
-			adEventHandler?(.didFailToLoad(action: action, error: HeraError.anotherOperationInProgress))
+			adEventHandler?(.didFailToLoad(action: action, adType: .interstitial, error: HeraError.anotherOperationInProgress))
             return
         }
         interstitial = AMRInterstitial(forZoneId: id)
@@ -83,6 +85,16 @@ final class AMRProvider: NSObject, AdsProvider {
     }
     
 	func showBanner(on view: UIView) {
+		guard view.window != nil else {
+            bannerDidFailToShow(HeraError.viewDoesNotHaveVisibleUIWindow)
+            return
+        }
+		
+		guard banner != nil, banner.bannerView != nil else {
+			bannerDidFailToShow(HeraError.nilBanner)
+			return
+		}
+		
         view.addSubview(banner.bannerView)
     }
     
@@ -98,7 +110,16 @@ final class AMRProvider: NSObject, AdsProvider {
     
     func showNative(on vc: UIViewController) {
         Logger.log(.warning, "unsupported ad format")
+        
     }
+	
+	func forceHideBanner() {
+		if banner != nil {
+			banner.bannerView.removeFromSuperview()
+			banner.bannerView = nil
+			banner = nil
+		}
+	}
 }
 
 fileprivate extension AMRProvider {
@@ -107,13 +128,16 @@ fileprivate extension AMRProvider {
 		AMRSDK.subject(toGDPR: subjectToGDPR)
 		AMRSDK.subject(toCCPA: setUserConsent)
         AMRSDK.start(withAppId: appID)
+        AMRBannerView.observeLifeCycles()
+        BannerStateObserver.bannerDidShowHandler = bannerDidShow
+        BannerStateObserver.bannerDidFalilToShowHandler = bannerDidFailToShow(_:)
 	}
 }
 
 // MARK: Banner Delegate
 extension AMRProvider: AMRBannerDelegate {
 	func didReceive(_ banner: AMRBanner!) {
-		adEventHandler?(.didLoad(action: bannerAction))
+		adEventHandler?(.didLoad(action: bannerAction, adType: .banner))
 	}
 	
 	func didClick(_ banner: AMRBanner!) {
@@ -121,20 +145,27 @@ extension AMRProvider: AMRBannerDelegate {
 	}
 	
 	func didFail(toReceive banner: AMRBanner!, error: AMRError!) {
-		adEventHandler?(.didFailToLoad(action: bannerAction, error: error))
+		adEventHandler?(.didFailToLoad(action: bannerAction, adType: .banner, error: error))
 	}
 	
+    func bannerDidShow() {
+        adEventHandler?(.didShow(action: bannerAction, adType: .banner))
+    }
+    
+    func bannerDidFailToShow(_ error: Error) {
+        adEventHandler?(.didFailToShow(action: bannerAction, adType: .banner, error: error))
+    }
 }
 
 // MARK: Interstitial Delegate
 extension AMRProvider: AMRInterstitialDelegate {
 	func didReceive(_ interstitial: AMRInterstitial!) {
 		self.interstitial = interstitial
-		adEventHandler?(.didLoad(action: interstitialAction))
+		adEventHandler?(.didLoad(action: interstitialAction, adType: .interstitial))
 	}
 	
 	func didFail(toReceive interstitial: AMRInterstitial!, error: AMRError!) {
-		adEventHandler?(.didFailToLoad(action: interstitialAction, error: error))
+		adEventHandler?(.didFailToLoad(action: interstitialAction, adType: .interstitial, error: error))
 	}
 	
 	func didClick(_ interstitial: AMRInterstitial!) {
@@ -142,11 +173,11 @@ extension AMRProvider: AMRInterstitialDelegate {
 	}
 	
 	func didShow(_ interstitial: AMRInterstitial!) {
-		adEventHandler?(.didShow(action: interstitialAction))
+		adEventHandler?(.didShow(action: interstitialAction, adType: .interstitial))
 	}
 	
 	func didFail(toShow interstitial: AMRInterstitial!, error: AMRError!) {
-		adEventHandler?(.didFailToShow(action: interstitialAction, error: error))
+		adEventHandler?(.didFailToShow(action: interstitialAction, adType: .interstitial, error: error))
 	}
 	
 	func didDismiss(_ interstitial: AMRInterstitial!) {

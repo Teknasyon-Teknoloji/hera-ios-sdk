@@ -16,46 +16,26 @@ or alternatively using `brew install fastlane`
 
 # Available Actions
 ## iOS
-### ios clean
+### ios release
 ```
-fastlane ios clean
+fastlane ios release
 ```
-Clean any generated Xcode project and pods
-### ios generate
+Release a new version of Hera
+### ios increment
 ```
-fastlane ios generate
+fastlane ios increment
 ```
-Generate Xcode project and install dependencies
-### ios generate_docs
+Increment Version
+### ios tests
 ```
-fastlane ios generate_docs
+fastlane ios tests
 ```
-Generate documentation website
-### ios lint
+Runs tests
+### ios compatibilityTests
 ```
-fastlane ios lint
+fastlane ios compatibilityTests
 ```
-Validate the project is ready for releasing
-### ios patch
-```
-fastlane ios patch
-```
-Release a new version with a `patch` bump_type
-### ios minor
-```
-fastlane ios minor
-```
-Release a new version with a `minor` bump_type
-### ios major
-```
-fastlane ios major
-```
-Release a new version with a `major` bump_type
-### ios beta
-```
-fastlane ios beta
-```
-Release a new beta version
+Run Dependency-Manager compatibility tests
 
 ----
 

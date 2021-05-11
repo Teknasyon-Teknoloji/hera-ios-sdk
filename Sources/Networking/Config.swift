@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Config: Decodable {
+struct Config: Decodable, Equatable {
 	let provider: Provider
 	let providerID: String?
 	let actions: [String: AdUnit]
@@ -33,7 +33,7 @@ struct Config: Decodable {
 }
 
 extension Config {
-	enum Provider: String, Decodable {
+	enum Provider: String, Decodable, Equatable {
 		case none
 		case mopub
 		case admost

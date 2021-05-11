@@ -1,6 +1,6 @@
 //
 //  Environment.swift
-//  HeraEnvironment
+//  Hera
 //
 //  Created by Ali Ammar Hilal on 18.01.2021.
 //

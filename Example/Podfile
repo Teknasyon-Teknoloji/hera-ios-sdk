@@ -3,7 +3,7 @@ use_frameworks!
 platform :ios, '10.0'
 
 target 'HeraExample' do
-	pod 'MediationManager', :path => '../'
+	pod 'HeraSDK', :path => '../'
 	pod 'Google-Mobile-Ads-SDK'
 	pod 'Moya'
 

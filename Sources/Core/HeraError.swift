@@ -10,6 +10,7 @@ import Foundation
 /// A type encloses all the possible errors thrown by the SDK.
 public enum HeraError: Swift.Error {
     case falidToLoad
+	case invalidData
     case outOfTimeInterval
 	case betweenTwoAdsInterval
     case actionDoesNotMatch
@@ -18,6 +19,8 @@ public enum HeraError: Swift.Error {
 	case wrongAppID
     case anotherAdIsBeingShown
 	case wrongPresenterType
+    case viewDoesNotHaveVisibleUIWindow
+	case nilBanner
 }
 
 extension HeraError: CustomStringConvertible, LocalizedError {
@@ -26,6 +29,9 @@ extension HeraError: CustomStringConvertible, LocalizedError {
         case .falidToLoad:
 			return "Failed to load the add"
 			
+		case .invalidData:
+			return "Invalid data, can;t be decoded!"
+
         case .outOfTimeInterval:
 			return "Cant show the add at the moment because the time interval since startup is less than the configured."
 			
@@ -47,6 +53,10 @@ extension HeraError: CustomStringConvertible, LocalizedError {
             return "Can show add for now because another ad is being shown 🔫"
 		case .wrongPresenterType:
 			return "You are either trying to present interstial on a UIView or presenting banner on UIViewController. Make sure you have used the right presenter type"
+        case .viewDoesNotHaveVisibleUIWindow:
+            return "View does not have visible UIWindow"
+		case .nilBanner:
+			return "Banner is deallocated. Please load the banner before trying to show it."
 		}
     }
 
