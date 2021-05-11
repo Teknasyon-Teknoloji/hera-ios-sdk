@@ -65,4 +65,10 @@ Pod::Spec.new do |s|
     vungle.dependency 'MoPub-Vungle-Adapters'
   end
 
+  # TikTok Adapter
+  s.subspec 'TikTok' do |tiktok|
+    tiktok.dependency 'AMRAdapterTiktok'
+    tiktok.dependency 'MoPub-Pangle-Adapters'
+  end
+
 end
