@@ -28,6 +28,9 @@ protocol AdLodable {
     /// - Parameter id: the native ad unit id/
     func loadNative(id: String, keywords: String?, action: String)
     
+	/// Force stop banner ads.
+	func forceHideBanner() 
+	
     var setUserConsent: Bool { get set }
     var subjectToGDPR: Bool { get set }
     var subjectToCCPA: Bool { get set }

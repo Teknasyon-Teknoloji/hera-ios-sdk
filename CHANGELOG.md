@@ -1,3 +1,9 @@
+
+## Version 2.0.0
+- **Features**
+  - Add support for banner ads type
+  - Add support for Tiktok ad network.
+    - 
 ## Version 1.2.0
 - **Features**
   - Add support for more 5 ads networks including:

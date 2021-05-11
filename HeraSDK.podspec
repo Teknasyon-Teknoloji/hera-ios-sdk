@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'HeraSDK'
-  s.version          = '1.3.3'
+  s.version          = '2.0.0'
   s.summary          = 'An abstraction layer used to manage Ads.'
   
   s.description      = <<-DESC
@@ -17,8 +17,6 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '10.0'
 
   s.default_subspec = 'Core'
-  s.static_framework = true
-  s.swift_version = "5.0"
 
   s.pod_target_xcconfig = { 'ONLY_ACTIVE_ARCH' => 'YES' }
   s.user_target_xcconfig = { 'ONLY_ACTIVE_ARCH' => 'YES' }
@@ -65,6 +63,12 @@ Pod::Spec.new do |s|
   s.subspec 'Vungle' do |vungle|
     vungle.dependency 'AMRAdapterVungle'
     vungle.dependency 'MoPub-Vungle-Adapters'
+  end
+
+  # TikTok Adapter
+  s.subspec 'TikTok' do |tiktok|
+    tiktok.dependency 'AMRAdapterTiktok'
+    tiktok.dependency 'MoPub-Pangle-Adapters'
   end
 
 end

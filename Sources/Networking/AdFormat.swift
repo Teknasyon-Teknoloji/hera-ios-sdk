@@ -7,10 +7,10 @@
 
 import Foundation
 
-public enum AdType: String, Decodable {
+public enum AdType: String, Decodable, Equatable {
 	case interstitial
     
-    @available(*, unavailable, message: "Unsupported Ad type at the moment, choose another option")
+    // @available(*, unavailable, message: "Unsupported Ad type at the moment, choose another option")
 	case banner
     
     @available(*, unavailable, message: "Unsupported Ad type at the moment, choose another option")
@@ -20,7 +20,7 @@ public enum AdType: String, Decodable {
 	case nativeAd
 }
 
-struct AdUnit: Decodable {
+struct AdUnit: Decodable, Equatable {
 	let type: AdType
 	let unitID: String
 	let keywords: String?

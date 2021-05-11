@@ -58,6 +58,7 @@ struct NetworkManager: Networking {
 	let provider = MoyaProvider<Service>(plugins: [])
     
     func getConfigs(userprops: HeraUserProperties, appKey: String, completion: @escaping ((Result<Config, Error>) -> Void)) {
+        print(userprops)
         provider.request(.getConfig(userProbs: userprops, appKey: appKey)) { res in
             switch res {
             case .success(let response):

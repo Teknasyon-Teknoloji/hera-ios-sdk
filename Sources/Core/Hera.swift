@@ -10,36 +10,35 @@ import Foundation
 
 public final class Hera {
 	private(set) public var apiKey: String?
+    
     private(set) public var environment: HeraEnvironment = .sandbox
+    
 	private(set) public var isUserConsentSet: Bool = false
 	private(set) public var isSbjectToGDPR: Bool  = false
 	private(set) public var isSubjectToCCPA: Bool  = false
 
 	private var userProperties: HeraUserProperties?
+    
 	private var adsProvider: AdsProvider?
+    
 	private var config: Config?
+    
 	private let networkingManager: Networking
-    private var intializationDate = Date()
-	private var lastAdShowDate: Date? = Date()
-	private let debouncer = Debouncer(delay: 0.4)
+    
+    var intializationDate = Date()
+            
+	var isInterstialAdShowing = false
 	
     weak var delegate: HeraDelegate?
-    
-    var lastLoadedAdDate = Date()
-    
-    var isAnotheAdShowing = false
-    
-    /// A variable to hold the current manager state
-    private(set) var state: HeraState = .ready
     
     /// A singleton instance of `hera`
     public static let shared = Hera()
 	
-	/// Checks whether the current ads provider can load ads or not
-	public var isReady: Bool {
-		guard adsProvider != nil else { return false }
-		return state == .ready
-	}
+	/// A  serial queue to hold all the ads load operations
+    private let queue: SerialQueue
+    
+    /// The container of the all supported ads.
+    private(set) var adContainer = AdsContainer()
 
 	/// Init the medation manager wih default properties
 	/// - Parameters:
@@ -49,11 +48,13 @@ public final class Hera {
 	internal init(
 		userProperties: HeraUserProperties? = nil,
 		adsProvider: AdsProvider? = nil,
-		networkingManager: Networking = NetworkManager()
+		networkingManager: Networking = NetworkManager(),
+		queue: SerialQueue  = SerialQueue()
 	) {
 		self.userProperties = userProperties
 		self.adsProvider = adsProvider
 		self.networkingManager = networkingManager
+		self.queue = queue
 	}
 	
 	/// Initializes the medation mananager with the given API key and environment type.
@@ -73,9 +74,10 @@ public final class Hera {
 		configure()
 	}
 	
-    /// Updates the user properties calling this method will trigger
+    /// Updates the user premium and landing dismissal count, calling this method will trigger
     /// a configuratio fetch request.
     /// - Parameter extraData: An extra json object to be passed to the backend. *WARNING*:
+	///  `is_premium` and ` landing_loading_count` are compulsary.
 	public func updateUserStatus(extraData: [String: Codable], completion: @escaping(Result<Void, Error>) -> Void ) {
         userProperties?.extraData = extraData
         configure(completion: completion)
@@ -115,55 +117,13 @@ public final class Hera {
 	///   - adType: The type of the ad to be loaded. see `AdType`
 	///   - action: the action associated with the ad type.
 	public func loadAd(ofType adType: AdType, action: String) {
-		// we want to prevent the case of sending too many requests without being able to show it.
-		debouncer.debounce {
-			guard
-				let config = self.config,
-				let adsProvider = self.adsProvider else {
-				self.notifiyObserver { $0?.heraDidFailToIntialize(error: HeraError.notCongiguredProperly) }
-				return
-			}
-			
-			guard let adId = config.actions[action]?.unitID else {
-				self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, error: HeraError.actionDoesNotMatch) }
-				return
-			}
-			
-			do {
-				try self.checkTimeInterval(from: config, andAction: action, type: adType)
-				
-			} catch {
-				self.notifiyObserver { $0?.heraDidFailToLoadAd(for: action, error: error) }
-				return
-			}
-            
-            if Date().timeIntervalSince(self.lastLoadedAdDate) >= 10 && self.state == .loading {
-                self.state = .timedOut
-            }
-            
-            guard self.state != .loading else {
-                Logger.log(.debug, "Trying to load ad while another load operation is in progress")
-				self.notifiyObserver { $0?.heraDidFailToLoadAd(for: action, error: HeraError.anotherOperationInProgress) }
-                return
-            }
-            
-            self.state = .loading
-            self.lastLoadedAdDate = Date()
-            
-            Logger.log(.debug, "Will load \(action)")
-            
-			let keywords = config.actions[action]?.keywords
-			
-			switch adType {
-			case .interstitial:
-				adsProvider.loadInterstitial(id: adId, keywords: keywords, action: action)
-			case .banner:
-				adsProvider.loadBanner(id: adId, keywords: keywords, action: action)
-			case .rewarededAd:
-				adsProvider.loadRewarededVideo(id: adId, keywords: keywords, action: action)
-			case .nativeAd:
-				adsProvider.loadNative(id: adId, keywords: keywords, action: action)
-			}
+		do {
+            try prepareToLoad(adType: adType, action: action)
+			queue.add(operation: AdOperation(action: action, adType: adType))
+			Logger.log(.debug, "The \(adType) for \(action) set to waiting, no: \(queue.operationsCount)")
+			loadIfPossible()
+		} catch {
+			notifiyObserver { $0?.heraDidFailToLoadAd(for: action, adType: adType, error: error) }
 		}
 	}
 	
@@ -173,7 +133,7 @@ public final class Hera {
 	///   -  action: the action needs to be performed.
 	///   - type: Ad type
 	///   - controller: The controller to present ads on it,
-	public func showAd(ofType type: AdType, action: String, on controller: UIViewController) {
+	public func showAd(ofType type: AdType, action: String, on presenter: AdsPresenter) {
 		guard
 			let config = config,
 			let adsProvider = adsProvider else {
@@ -181,37 +141,56 @@ public final class Hera {
 			return
 		}
 		
-		do {
-			try checkTimeInterval(from: config, andAction: action, type: type)
-			
-		} catch let error {
-			notifiyObserver { $0?.heraDidFailToShowAd(for: action, error: error) }
-            return
-		}
-
-        guard self.state != .showing else {
-            Logger.log(.debug, "Trying to show ad while another ad is being shown.")
-			self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, error: HeraError.anotherAdIsBeingShown)}
-            return
+        if type != .banner {
+            do {
+                try checkTimeInterval(from: config, andAction: action, type: type)
+                
+            } catch let error {
+                notifiyObserver { $0?.heraDidFailToShowAd(for: action, adType: type, error: error) }
+                return
+            }
         }
 		
+		if type == .interstitial && (adContainer.interstitial.state == .showning || isInterstialAdShowing) {
+            Logger.log(.debug, "Trying to show ad while another ad is being shown.")
+            self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, adType: type, error: HeraError.anotherAdIsBeingShown) }
+            return
+        }
+        
+        Logger.log(.debug, "Will show ad of type \(type) and action \(action)")
+        
 		guard let adType = config.actions[action]?.type, type == adType else {
-			self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, error: HeraError.actionDoesNotMatch) }
+			self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, adType: type, error: HeraError.actionDoesNotMatch) }
 			return
 		}
 		
 		DispatchQueue.main.async {
 			switch adType {
 			case .interstitial:
+				guard let controller = presenter.adsViewController else {
+					self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, adType: adType, error: HeraError.wrongPresenterType)}
+					return
+				}
 				adsProvider.showInterstitial(on: controller)
 			case .banner:
-				adsProvider.showBanner(on: controller.view)
+				guard let view = presenter.adsView else {
+					self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, adType: adType, error: HeraError.wrongPresenterType)}
+					return
+				}
+				adsProvider.showBanner(on: view)
 			case .rewarededAd:
 				break
 			case .nativeAd:
 				break
 			}
 		}
+	}
+	
+	/// Removes and stops banner automatic refreshing
+	/// if you want to hide banner calling this method wil hide
+	/// it and remove it from super view permanently.
+	public func removeBanner() {
+		adsProvider?.forceHideBanner()
 	}
 }
 
@@ -292,25 +271,23 @@ private extension Hera {
 	func ovserveEvents() {
 		adsProvider?.adEventHandler = { [weak self] event in
 			guard let self = self else { return }
-			Logger.log(.debug, "Mediation Manager Did Recived Event \(event)")
+			Logger.log(.debug, "Hera Did Recived Event: \(event)")
 			switch event {
-			case let .didLoad(action):
-                self.state = .ready
-				self.notifiyObserver { $0?.heraDidLoadAd(for: action) }
-			case let .didFailToLoad(action, error):
-                self.state = .ready
-				self.notifiyObserver { $0?.heraDidFailToLoadAd(for: action, error: error) }
-			case let .didShow(action):
-                self.state = .showing
-				self.lastAdShowDate = Date() // We need to set it in this place in order to prevent other ads from being showed before the current ad is closed
-				self.notifiyObserver { $0?.heraDidShowAd(for: action) }
+			case let .didLoad(action, adType):
+                self.handleLoad(of: adType, with: action)
+                self.adContainer.setState(for: adType, from: event)
+			case let .didFailToLoad(action, adType, error):
+                self.handleLoadFailure(of: adType, with: action, and: error)
+                self.adContainer.setState(for: adType, from: event)
+			case let .didShow(action, adType):
+                self.handleShow(of: adType, with: action)
+                self.adContainer.setState(for: adType, from: event)
 			case .dismissed:
-                self.state = .ready
-				self.lastAdShowDate = Date()
-				self.notifiyObserver { $0?.heraDidDismissAd() }
-			case let .didFailToShow(action, error):
-				self.state = .ready
-				self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, error: error) }
+                self.handleAdDismissal()
+                self.adContainer.setState(for: .interstitial, from: event)
+			case let .didFailToShow(action, adType, error):
+                self.handleShowFailure(of: adType, with: action, and: error)
+                self.adContainer.setState(for: adType, from: event)
 			default: ()
 			}
 		}
@@ -329,11 +306,77 @@ private extension Hera {
             throw HeraError.outOfTimeInterval
         }
         
-		if let lastdate = lastAdShowDate, Date().timeIntervalSince(lastdate) <= config.adInterval {
+        let date = adContainer.ad(ofType: type).lastShowingDate
+        if Date().timeIntervalSince(date) <= config.adInterval {
             throw HeraError.betweenTwoAdsInterval
 		}
 	}
 	
+	// swiftlint:disable large_tuple
+	@discardableResult
+	func prepareToLoad(adType: AdType, action: String) throws -> (config: Config, provifer: AdsProvider, adID: String) {
+		guard
+			let config = self.config,
+			let adsProvider = self.adsProvider else {
+			throw HeraError.notCongiguredProperly
+		}
+		
+		guard let adId = config.actions[action]?.unitID else {
+			throw HeraError.actionDoesNotMatch
+		}
+		
+		try self.checkTimeInterval(from: config, andAction: action, type: adType)
+        
+        if let date = adContainer.ad(ofType: adType).lastLoadingDate, Date().timeIntervalSince(date) >= 10 {
+            adContainer.setState(.loadingTimedOut, for: adType)
+        }
+        
+        try checkLoadingState(ofType: adType)
+        
+		return (config, adsProvider, adId)
+	}
+	
+    func checkLoadingState(ofType ad: AdType) throws {
+        switch ad {
+        case .banner:
+            if adContainer.banner.state == .loading { throw HeraError.anotherOperationInProgress }
+        case .interstitial:
+            if adContainer.interstitial.state == .loading { throw HeraError.anotherOperationInProgress }
+        }
+    }
+    
+	func loadNext() {
+		loadIfPossible()
+	}
+	
+    func loadIfPossible() {
+        guard let operation = queue.dispatch() else { return }
+        let action = operation.action
+        let adType = operation.adType
+        do {
+            let (config, adsProvider, adId) = try prepareToLoad(adType: adType, action: action)
+            let keywords = config.actions[action]?.keywords
+            
+			self.adContainer.setLoadingDate(for: adType)
+            self.adContainer.setState(for: adType, from: .willLoad)
+            
+            Logger.log(.debug, "Will Load ad of type \(adType) for action \(action)")
+            
+            switch operation.adType {
+            case .interstitial:
+                adsProvider.loadInterstitial(id: adId, keywords: keywords, action: action)
+            case .banner:
+                adsProvider.loadBanner(id: adId, keywords: keywords, action: action)
+            case .rewarededAd:
+                adsProvider.loadRewarededVideo(id: adId, keywords: keywords, action: action)
+            case .nativeAd:
+                adsProvider.loadNative(id: adId, keywords: keywords, action: action)
+            }
+        } catch {
+            notifiyObserver { $0?.heraDidFailToLoadAd(for: action, adType: adType, error: error)}
+        }
+    }
+    
 	/// Whether the user subjects to GDPR rules or not.
 	func setSbjectToGDPR() {
 		let value = Locale.current.regionCode?.isSubjectToGDBR ?? false
@@ -349,4 +392,38 @@ private extension Hera {
             // self.notifier.sendEvent(event)
 		}
 	}
+    
+    func handleLoad(of adType: AdType, with action: String) {
+        self.notifiyObserver { $0?.heraDidLoadAd(for: action, adType: adType) }
+		loadNext()
+    }
+    
+    func handleLoadFailure(of adType: AdType, with action: String, and error: Error) {
+        self.notifiyObserver { $0?.heraDidFailToLoadAd(for: action, adType: adType, error: error) }
+		loadNext()
+    }
+    
+    func handleShow(of adType: AdType, with action: String) {
+		if adType == .interstitial {
+			self.isInterstialAdShowing = true
+		}
+        // We need to set it in this place in order to prevent other
+		// ads from being showed before the current ad is closed
+		self.adContainer.setShowingDate(for: adType)
+        self.notifiyObserver { $0?.heraDidShowAd(for: action, adType: adType) }
+    }
+    
+    func handleShowFailure(of adType: AdType, with action: String, and error: Error) {
+		if adType == .interstitial {
+			self.isInterstialAdShowing = false
+		}
+		
+        self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, adType: adType, error: error) }
+    }
+    
+    func handleAdDismissal() {
+		self.isInterstialAdShowing = false
+		self.adContainer.setShowingDate(for: .interstitial)
+        self.notifiyObserver { $0?.heraDidDismissAd() }
+    }
 }
