@@ -23,7 +23,7 @@ Pod::Spec.new do |s|
 
   # Core
   s.subspec 'Core' do |ss|
-    ss.dependency 'AMRSDK', '~> 1.4'
+    ss.dependency 'AMRSDK', '1.4.62' #'~> 1.4'
     ss.dependency 'AMRAdapterAdmost'
     ss.dependency 'mopub-ios-sdk', '~> 5.17'
     ss.dependency 'Moya'
@@ -67,7 +67,7 @@ Pod::Spec.new do |s|
 
   # TikTok Adapter
   s.subspec 'TikTok' do |tiktok|
-    tiktok.dependency 'AMRAdapterTiktok'
+    tiktok.dependency 'AMRAdapterTiktok', '3.4.4.3'
     tiktok.dependency 'MoPub-Pangle-Adapters'
   end
 
