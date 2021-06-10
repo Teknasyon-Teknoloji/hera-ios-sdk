@@ -330,9 +330,9 @@ To load ads call loadAd(ofType:action:). Please note that this method is async a
 
 ```swift
 // For interstitial ads
-Hera.shared..loadAd(ofType: .interstitial, for: .afterLanding)
+Hera.shared.loadAd(ofType: .interstitial, for: .settings)
 // For banner ads
-Hera.shared..loadAd(ofType: .banner, for: .inAppSwipe)
+Hera.shared.loadAd(ofType: .banner, for: .inAppSwipe)
 ```
 
   

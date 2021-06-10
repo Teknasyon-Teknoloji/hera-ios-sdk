@@ -18,7 +18,7 @@ enum Service: TargetType {
 	}
 
     var baseURL: URL {
-		return URL(string: "https://mm.kairosapi.com/api/")!
+		return URL(string: "https://hera.aresframework.com/api/")!
     }
     
     var method: Moya.Method {

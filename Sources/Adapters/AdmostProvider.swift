@@ -13,32 +13,32 @@ final class AMRProvider: NSObject, AdsProvider {
 	var adEventHandler: ((AdEvent) -> Void)?
 	
 	private let appID: String
-	private var banner: AMRBanner!
-	private var interstitial: AMRInterstitial!
-	private var rewarded: AMRRewardedVideo!
+	private var banner: AMRBanner?
+	private var interstitial: AMRInterstitial?
+	private var rewarded: AMRRewardedVideo?
 	
-    private var bannerAction: String = ""
-    private var interstitialAction: String = ""
-    private var rewardedAction: String = ""
-    
-    var setUserConsent: Bool {
-        didSet {
-            AMRSDK.setUserConsent(setUserConsent)
-        }
-    }
-    
-    var subjectToGDPR: Bool {
-        didSet {
-            AMRSDK.subject(toGDPR: subjectToGDPR)
-        }
-    }
-    
-    var subjectToCCPA: Bool {
-        didSet {
-            AMRSDK.subject(toCCPA: subjectToCCPA)
-        }
-    }
-    
+	private var bannerAction: String = ""
+	private var interstitialAction: String = ""
+	private var rewardedAction: String = ""
+	
+	var setUserConsent: Bool {
+		didSet {
+			AMRSDK.setUserConsent(setUserConsent)
+		}
+	}
+	
+	var subjectToGDPR: Bool {
+		didSet {
+			AMRSDK.subject(toGDPR: subjectToGDPR)
+		}
+	}
+	
+	var subjectToCCPA: Bool {
+		didSet {
+			AMRSDK.subject(toCCPA: subjectToCCPA)
+		}
+	}
+	
 	init(
 		appID: String,
 		setUserConsent: Bool,
@@ -52,73 +52,72 @@ final class AMRProvider: NSObject, AdsProvider {
 		super.init()
 		start()
 	}
-    
-    func loadBanner(id: String, keywords: String?, action: String) {
-        banner = AMRBanner(forZoneId: id)
-        banner.bannerWidth = 320 
-        banner.delegate = self
-        banner.load()
-        bannerAction = action
-        banner.viewController = UIApplication.topViewController()
-    }
-    
-    func loadInterstitial(id: String, keywords: String?, action: String) {
+	
+	func loadBanner(id: String, keywords: String?, action: String) {
+		banner = AMRBanner(forZoneId: id)
+		banner?.bannerWidth = 320
+		banner?.delegate = self
+		banner?.load()
+		bannerAction = action
+		banner?.viewController = UIApplication.topViewController()
+	}
+	
+	func loadInterstitial(id: String, keywords: String?, action: String) {
 		if let inter = interstitial, inter.isLoading {
 			adEventHandler?(.didFailToLoad(action: action, adType: .interstitial, error: HeraError.anotherOperationInProgress))
-            return
-        }
-        interstitial = AMRInterstitial(forZoneId: id)
-        interstitial.delegate = self
-        interstitial.load()
-        interstitialAction = action
-    }
-    
-    func loadRewarededVideo(id: String, keywords: String?, action: String) {
-        rewarded = AMRRewardedVideo(forZoneId: id)
-        rewarded.delegate = self
-        rewarded.load()
-        rewardedAction = action
-    }
-    
-    func loadNative(id: String, keywords: String?, action: String) {
-        fatalError("unsupported ad format")
-    }
-    
+			return
+		}
+		interstitial = AMRInterstitial(forZoneId: id)
+		interstitial?.delegate = self
+		interstitial?.load()
+		interstitialAction = action
+	}
+	
+	func loadRewarededVideo(id: String, keywords: String?, action: String) {
+		rewarded = AMRRewardedVideo(forZoneId: id)
+		rewarded?.delegate = self
+		rewarded?.load()
+		rewardedAction = action
+	}
+	
+	func loadNative(id: String, keywords: String?, action: String) {
+		fatalError("unsupported ad format")
+	}
+	
 	func showBanner(on view: UIView) {
 		guard view.window != nil else {
-            bannerDidFailToShow(HeraError.viewDoesNotHaveVisibleUIWindow)
-            return
-        }
+			bannerDidFailToShow(HeraError.viewDoesNotHaveVisibleUIWindow)
+			return
+		}
 		
-		guard banner != nil, banner.bannerView != nil else {
+		guard let banner = banner, banner.bannerView != nil else {
 			bannerDidFailToShow(HeraError.nilBanner)
 			return
 		}
 		
-        view.addSubview(banner.bannerView)
-    }
-    
-    func showInterstitial(on vc: UIViewController) {
-        if let interstitial = interstitial {
-            interstitial.show(from: vc)
-        }
-    }
-    
-    func showRewarededVideo(on vc: UIViewController) {
-        Logger.log(.warning, "unsupported ad format")
-    }
-    
-    func showNative(on vc: UIViewController) {
-        Logger.log(.warning, "unsupported ad format")
-        
-    }
+		view.addSubview(banner.bannerView)
+	}
+	
+	func showInterstitial(on vc: UIViewController) {
+		if let interstitial = interstitial {
+			interstitial.show(from: vc)
+		}
+	}
+	
+	func showRewarededVideo(on vc: UIViewController) {
+		Logger.log(.warning, "unsupported ad format")
+	}
+	
+	func showNative(on vc: UIViewController) {
+		Logger.log(.warning, "unsupported ad format")
+		
+	}
 	
 	func forceHideBanner() {
-		if banner != nil {
-			banner.bannerView.removeFromSuperview()
-			banner.bannerView = nil
-			banner = nil
-		}
+		guard let banner = banner, banner.bannerView != nil else { return }
+		banner.bannerView.removeFromSuperview()
+		banner.bannerView = nil
+		self.banner = nil
 	}
 }
 
@@ -127,10 +126,10 @@ fileprivate extension AMRProvider {
 		AMRSDK.setUserConsent(setUserConsent)
 		AMRSDK.subject(toGDPR: subjectToGDPR)
 		AMRSDK.subject(toCCPA: setUserConsent)
-        AMRSDK.start(withAppId: appID)
-        AMRBannerView.observeLifeCycles()
-        BannerStateObserver.bannerDidShowHandler = bannerDidShow
-        BannerStateObserver.bannerDidFalilToShowHandler = bannerDidFailToShow(_:)
+		AMRSDK.start(withAppId: appID)
+		AMRBannerView.observeLifeCycles()
+		BannerStateObserver.bannerDidShowHandler = bannerDidShow
+		BannerStateObserver.bannerDidFalilToShowHandler = bannerDidFailToShow(_:)
 	}
 }
 
@@ -148,13 +147,13 @@ extension AMRProvider: AMRBannerDelegate {
 		adEventHandler?(.didFailToLoad(action: bannerAction, adType: .banner, error: error))
 	}
 	
-    func bannerDidShow() {
-        adEventHandler?(.didShow(action: bannerAction, adType: .banner))
-    }
-    
-    func bannerDidFailToShow(_ error: Error) {
-        adEventHandler?(.didFailToShow(action: bannerAction, adType: .banner, error: error))
-    }
+	func bannerDidShow() {
+		adEventHandler?(.didShow(action: bannerAction, adType: .banner))
+	}
+	
+	func bannerDidFailToShow(_ error: Error) {
+		adEventHandler?(.didFailToShow(action: bannerAction, adType: .banner, error: error))
+	}
 }
 
 // MARK: Interstitial Delegate
@@ -188,7 +187,7 @@ extension AMRProvider: AMRInterstitialDelegate {
 // MARK: Rewarded Video Delegate
 extension AMRProvider: AMRRewardedVideoDelegate {
 	func didReceive(_ rewardedVideo: AMRRewardedVideo!) {
-        // adEventHandler?(.didLoad(action: rewardedAction))
+		// adEventHandler?(.didLoad(action: rewardedAction))
 	}
 	
 	func didFail(toReceive rewardedVideo: AMRRewardedVideo!, error: AMRError!) {
@@ -204,7 +203,7 @@ extension AMRProvider: AMRRewardedVideoDelegate {
 	}
 	
 	func didFail(toShow rewardedVideo: AMRRewardedVideo!, error: AMRError!) {
-        // adEventHandler?(.didFailToShow(action: rewardedAction, error: error))
+		// adEventHandler?(.didFailToShow(action: rewardedAction, error: error))
 	}
 	
 	func didDismiss(_ rewardedVideo: AMRRewardedVideo!) {

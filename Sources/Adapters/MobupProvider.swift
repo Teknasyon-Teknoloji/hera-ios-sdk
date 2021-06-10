@@ -12,9 +12,9 @@ final class MobupProvider: NSObject, AdsProvider {
 	var adEventHandler: ((AdEvent) -> Void)?
 
 	private weak var vcForPresentingModalView: UIViewController?
-	private var banner: MPAdView!
-	private var interstitial: MPInterstitialAdController!
-	private var rewarded: MPRewardedAds!
+	private var banner: MPAdView?
+	private var interstitial: MPInterstitialAdController?
+	private var rewarded: MPRewardedAds?
 	
 	private let adUnitID: String
 	
@@ -53,12 +53,12 @@ final class MobupProvider: NSObject, AdsProvider {
 	}
 	
 	func loadBanner(id: String, keywords: String?, action: String) {
-		banner = MPAdView(adUnitId: id) // 0ac59b0996d947309c33f59d6676399f
-		banner.delegate = self
-		banner.keywords = keywords
-        banner.loadAd(withMaxAdSize: .init(width: UIScreen.main.bounds.width, height: 50))
+		banner = MPAdView(adUnitId: id)
+		banner?.delegate = self
+		banner?.keywords = keywords
+		banner?.loadAd(withMaxAdSize: .init(width: UIScreen.main.bounds.width, height: 50))
 		bannerAction = action
-		banner.forceRefreshAd()
+		banner?.forceRefreshAd()
 	}
 	
 	func loadInterstitial(id: String, keywords: String?, action: String) {
@@ -67,11 +67,11 @@ final class MobupProvider: NSObject, AdsProvider {
 		// be only called on Main thread.
 		DispatchQueue.main.async {
 			self.interstitial = MPInterstitialAdController(forAdUnitId: id)
-			self.interstitial.delegate = self
-			self.interstitial.keywords = keywords
-			self.interstitial.loadAd()
+			self.interstitial?.delegate = self
+			self.interstitial?.keywords = keywords
+			self.interstitial?.loadAd()
 			self.interstitialAction = action
-            
+			
 		}
 	}
 	
@@ -86,18 +86,18 @@ final class MobupProvider: NSObject, AdsProvider {
 	
 	func showBanner(on view: UIView) {
 	
-        guard view.window != nil else {
-            bannerDidFailToShow(HeraError.viewDoesNotHaveVisibleUIWindow)
-            return
-        }
-        
-		guard banner != nil else {
+		guard view.window != nil else {
+			bannerDidFailToShow(HeraError.viewDoesNotHaveVisibleUIWindow)
+			return
+		}
+		
+		guard let banner = banner else {
 			bannerDidFailToShow(HeraError.nilBanner)
 			return
 		}
 		
-        view.addSubview(banner)
-        banner.fillSuperview()
+		view.addSubview(banner)
+		banner.fillSuperview()
 	}
 	
 	func showInterstitial(on vc: UIViewController) {
@@ -116,8 +116,8 @@ final class MobupProvider: NSObject, AdsProvider {
 	
 	func forceHideBanner() {
 		if banner != nil {
-			banner.removeFromSuperview()
-			banner.stopAutomaticallyRefreshingContents()
+			banner?.removeFromSuperview()
+			banner?.stopAutomaticallyRefreshingContents()
 			banner = nil
 		}
 	}
@@ -132,10 +132,10 @@ private extension MobupProvider {
 		MoPub.sharedInstance().initializeSdk(with: configs) {
 			Logger.log(.success, "MoPub intialized successfully")
 		}
-        
-        MPAdView.observeLifeCycles()
-        BannerStateObserver.bannerDidShowHandler = bannerDidShow
-        BannerStateObserver.bannerDidFalilToShowHandler = bannerDidFailToShow(_:)
+		
+		MPAdView.observeLifeCycles()
+		BannerStateObserver.bannerDidShowHandler = bannerDidShow
+		BannerStateObserver.bannerDidFalilToShowHandler = bannerDidFailToShow(_:)
 	}
 }
 
@@ -143,32 +143,32 @@ private extension MobupProvider {
 extension MobupProvider: MPAdViewDelegate {
 	
 	func adViewDidLoadAd(_ view: MPAdView!, adSize: CGSize) {
-        Logger.log(.debug, "Loaded ad size", adSize)
-        banner.frame.size.height = view.frame.height
+		Logger.log(.debug, "Loaded ad size", adSize)
+		banner?.frame.size.height = view.frame.height
 		adEventHandler?(.didLoad(action: bannerAction, adType: .banner))
 	}
 	
 	func adView(_ view: MPAdView!, didFailToLoadAdWithError error: Error!) {
 		adEventHandler?(.didFailToLoad(action: bannerAction, adType: .banner, error: error))
 	}
-    
-    func bannerDidShow() {
-        adEventHandler?(.didShow(action: bannerAction, adType: .banner))
-    }
-    
-    func bannerDidFailToShow(_ error: Error) {
-        adEventHandler?(.didFailToShow(action: bannerAction, adType: .banner, error: error))
-    }
+	
+	func bannerDidShow() {
+		adEventHandler?(.didShow(action: bannerAction, adType: .banner))
+	}
+	
+	func bannerDidFailToShow(_ error: Error) {
+		adEventHandler?(.didFailToShow(action: bannerAction, adType: .banner, error: error))
+	}
 }
 
 extension MobupProvider: MPInterstitialAdControllerDelegate {
-    func viewControllerForPresentingModalView() -> UIViewController! {
-        // it depends on when it is called
-        guard let viewController = vcForPresentingModalView else { return UIApplication.topViewController() }
-        return viewController
-        
-    }
-    
+	func viewControllerForPresentingModalView() -> UIViewController! {
+		// it depends on when it is called
+		guard let viewController = vcForPresentingModalView else { return UIApplication.topViewController() }
+		return viewController
+		
+	}
+	
 	func interstitialDidLoadAd(_ interstitial: MPInterstitialAdController!) {
 		self.interstitial = interstitial
 		adEventHandler?(.didLoad(action: interstitialAction, adType: .interstitial))
