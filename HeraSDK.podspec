@@ -20,10 +20,10 @@ Pod::Spec.new do |s|
 
   s.pod_target_xcconfig = { 'ONLY_ACTIVE_ARCH' => 'YES' }
   s.user_target_xcconfig = { 'ONLY_ACTIVE_ARCH' => 'YES' }
-
+  
   # Core
   s.subspec 'Core' do |ss|
-    ss.dependency 'AMRSDK', '1.4.62' #'~> 1.4'
+    ss.dependency 'AMRSDK',  '~> 1.4' #'1.4.62' #
     ss.dependency 'AMRAdapterAdmost'
     ss.dependency 'mopub-ios-sdk', '~> 5.17'
     ss.dependency 'Moya'
@@ -59,15 +59,19 @@ Pod::Spec.new do |s|
     chartboost.dependency 'MoPub-Chartboost-Adapters'
   end
 
+  #********************************#
+  # Temporary disabled, because of 
+  # the vendored frameworks collosion
+  #********************************#
   # Vungle Adapter
   s.subspec 'Vungle' do |vungle|
     vungle.dependency 'AMRAdapterVungle'
-    vungle.dependency 'MoPub-Vungle-Adapters'
+    #vungle.dependency 'MoPub-Vungle-Adapters'
   end
 
   # TikTok Adapter
   s.subspec 'TikTok' do |tiktok|
-    tiktok.dependency 'AMRAdapterTiktok', '3.4.4.3'
+    tiktok.dependency 'AMRAdapterTiktok'#, '3.4.4.3'
     tiktok.dependency 'MoPub-Pangle-Adapters'
   end
 
