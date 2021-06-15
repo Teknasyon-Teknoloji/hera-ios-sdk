@@ -33,9 +33,6 @@ Pod::Spec.new do |s|
     ss.dependency 'AMRAdapterFacebook'
     ss.source_files = 'Sources/**/*.*'
     ss.ios.deployment_target = '10.0'
-
-    ss.dependency 'AMRAdapterFacebook'
-    ss.dependency 'MoPub-Vungle-Adapters'
   end
 
   # IronSource Adapter
@@ -66,19 +63,11 @@ Pod::Spec.new do |s|
   # Temporary disabled, because of 
   # the vendored frameworks collosion
   #********************************#
-<<<<<<< HEAD
   # Vungle Adapter
   s.subspec 'Vungle' do |vungle|
     vungle.dependency 'AMRAdapterVungle'
     #vungle.dependency 'MoPub-Vungle-Adapters'
   end
-=======
-  # # Vungle Adapter
-  # s.subspec 'Vungle' do |vungle|
-  #   vungle.dependency 'AMRAdapterVungle'
-  #   vungle.dependency 'MoPub-Vungle-Adapters'
-  # end
->>>>>>> 6772b3260810aad69cba75962c975597103f9097
 
   # TikTok Adapter
   s.subspec 'TikTok' do |tiktok|
