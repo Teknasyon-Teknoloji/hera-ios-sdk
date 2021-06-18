@@ -9,58 +9,58 @@ import Foundation
 
 /// A type encloses all the possible errors thrown by the SDK.
 public enum HeraError: Swift.Error {
-    case falidToLoad
+	case falidToLoad(action: String)
 	case invalidData
-    case outOfTimeInterval
+	case outOfTimeInterval
 	case betweenTwoAdsInterval
-    case actionDoesNotMatch
-    case anotherOperationInProgress
-    case notCongiguredProperly
+	case actionDoesNotMatch(action: String, availableActions: String)
+	case anotherOperationInProgress
+	case notCongiguredProperly
 	case wrongAppID
-    case anotherAdIsBeingShown
+	case anotherAdIsBeingShown
 	case wrongPresenterType
-    case viewDoesNotHaveVisibleUIWindow
+	case viewDoesNotHaveVisibleUIWindow
 	case nilBanner
 }
 
 extension HeraError: CustomStringConvertible, LocalizedError {
-    public var description: String {
-        switch self {
-        case .falidToLoad:
-			return "Failed to load the add"
+	public var description: String {
+		switch self {
+		case .falidToLoad(let action):
+			return "Failed to load the add for action: \(action)"
 			
 		case .invalidData:
-			return "Invalid data, can;t be decoded!"
+			return "Invalid data, can't be decoded!"
 
-        case .outOfTimeInterval:
-			return "Cant show the add at the moment because the time interval since startup is less than the configured."
+		case .outOfTimeInterval:
+			return "Cant show the add at the moment because the time interval since the app startup is less than the configured. Please wait"
 			
-        case .actionDoesNotMatch:
-			return "The provided action doesn't any of the fetched actions. Please make sure you provided the right action name (case-sensetive)."
+		case .actionDoesNotMatch(let action, let fethcedActions):
+			return "The provided action: (\(action) doesn't any of the fetched actions \(fethcedActions). Please make sure you provided the right action name (case-sensetive)."
 			
-        case .anotherOperationInProgress:
+		case .anotherOperationInProgress:
 			return "Trying to load ad while another load operation is in progress. Please wait!"
 			
-        case .notCongiguredProperly: return "The Manager is misconfigured, make sure you have called both initialize(apiKey: environment:) and setUserProperties(_:) with the right parameters consequently."
+		case .notCongiguredProperly: return "The fetched configs are invalid."
 			
 		case .betweenTwoAdsInterval:
 			return "Cant show the add at the moment because the time interval since the last shown ad is less than the configured."
 			
 		case .wrongAppID:
 			return "The provider ID is incorrect."
-            
-        case .anotherAdIsBeingShown:
-            return "Can show add for now because another ad is being shown 🔫"
+			
+		case .anotherAdIsBeingShown:
+			return "Can show add for now because another ad is being shown 🔫"
 		case .wrongPresenterType:
 			return "You are either trying to present interstial on a UIView or presenting banner on UIViewController. Make sure you have used the right presenter type"
-        case .viewDoesNotHaveVisibleUIWindow:
-            return "View does not have visible UIWindow"
+		case .viewDoesNotHaveVisibleUIWindow:
+			return "View does not have visible UIWindow"
 		case .nilBanner:
 			return "Banner is deallocated. Please load the banner before trying to show it."
 		}
-    }
+	}
 
-    public var errorDescription: String? {
-        description
-    }
+	public var errorDescription: String? {
+		description
+	}
 }

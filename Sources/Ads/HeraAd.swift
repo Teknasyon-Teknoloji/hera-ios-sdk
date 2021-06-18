@@ -17,5 +17,5 @@ protocol HeraAd {
     var lastLoadingDate: Date? { get set }
     
     /// The date represents when the ad is last showed.
-    var lastShowingDate: Date { get set }
+    var lastShowingDate: Date? { get set }
 }

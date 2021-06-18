@@ -11,5 +11,5 @@ import Foundation
 final class Interstitial: HeraAd {
     var state: AdState = .hidden
     var lastLoadingDate: Date?
-    var lastShowingDate = Date()
+	var lastShowingDate: Date?
 }

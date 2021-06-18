@@ -160,7 +160,8 @@ public final class Hera {
         Logger.log(.debug, "Will show ad of type \(type) and action \(action)")
         
 		guard let adType = config.actions[action]?.type, type == adType else {
-			self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, adType: type, error: HeraError.actionDoesNotMatch) }
+			let avaliableActions = config.actions.map({ $0.key }).joined(separator: ", ")
+			self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, adType: type, error: HeraError.actionDoesNotMatch(action: action, availableActions: avaliableActions)) }
 			return
 		}
 		
@@ -306,7 +307,7 @@ private extension Hera {
             throw HeraError.outOfTimeInterval
         }
         
-        let date = adContainer.ad(ofType: type).lastShowingDate
+		guard let date = adContainer.ad(ofType: type).lastShowingDate else { return }
         if Date().timeIntervalSince(date) <= config.adInterval {
             throw HeraError.betweenTwoAdsInterval
 		}
@@ -322,7 +323,8 @@ private extension Hera {
 		}
 		
 		guard let adId = config.actions[action]?.unitID else {
-			throw HeraError.actionDoesNotMatch
+			let avaliableActions = config.actions.map({ $0.key }).joined(separator: ", ")
+			throw HeraError.actionDoesNotMatch(action: action, availableActions: avaliableActions)
 		}
 		
 		try self.checkTimeInterval(from: config, andAction: action, type: adType)
