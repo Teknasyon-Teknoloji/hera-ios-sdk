@@ -14,5 +14,5 @@ final class Banner: HeraAd {
 	
 	// NOTE: The banner always refreshes itself based on specific
 	//  time intervals so we need to take this into considration.
-    var lastShowingDate = Date()
+	var lastShowingDate: Date?
 }
