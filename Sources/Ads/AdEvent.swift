@@ -1,6 +1,6 @@
 //
 //  AdEvent.swift
-//  Hera
+//  MediationManager
 //
 //  Created by Ali Ammar Hilal on 20.01.2021.
 //
@@ -16,22 +16,23 @@ public enum AdEvent {
 	case didFailToPlay
 	case willAppear
 	case didAppear
-	case willDisappear// (action: String)
-	case didDisappear// (action: String)
+	case willDisappear // (action: String)
+	case didDisappear // (action: String)
 	case willPresentModal
 	case didDismissModal
 	case didExpire
-	case clicked// (action: String)
-	case dismissed// (action: String)
+	case clicked // (action: String)
+	case dismissed // (action: String)
 	case willLeaveApp
 	case shouldRewardUser
 	case didTrackImpression
     case willLoad
+	case didReward
 }
 
 extension AdEvent {
     
-    /// Maps the curent ad evebt to its corrsponding ad state
+    /// Maps the curent ad event to its corrsponding ad state
     /// - Returns: an object of type `AdState`
     func mapToAdState() -> AdState {
         switch self {

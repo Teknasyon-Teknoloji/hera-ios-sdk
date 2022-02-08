@@ -7,6 +7,7 @@
 
 import UIKit
 import Foundation
+import AMRSDK
 
 public final class Hera {
 	private(set) public var apiKey: String?
@@ -29,6 +30,14 @@ public final class Hera {
             
 	var isInterstialAdShowing = false
 	
+	/// Some ads providers support rewarded ads inventory tracking
+	/// this will return true if the current active provider supports ads
+	/// inventory tracking.
+	public var providerSupportsRewardedTracking: Bool {
+		guard let config = config else { return false }
+		return config.provider != .admost
+	}
+    
     weak var delegate: HeraDelegate?
     
     /// A singleton instance of `hera`
@@ -166,23 +175,22 @@ public final class Hera {
 		}
 		
 		DispatchQueue.main.async {
-			switch adType {
-			case .interstitial:
-				guard let controller = presenter.adsViewController else {
-					self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, adType: adType, error: HeraError.wrongPresenterType)}
-					return
+			do {
+				switch adType {
+				case .interstitial:
+					let controller = try self.viewController(from: presenter)
+					adsProvider.showInterstitial(on: controller)
+				case .banner:
+					let view = try self.view(from: presenter)
+					adsProvider.showBanner(on: view)
+				case .rewarded:
+					let controller = try self.viewController(from: presenter)
+					adsProvider.showRewarededVideo(on: controller, for: config.actions[action]?.unitID)
+				case .native:
+					break
 				}
-				adsProvider.showInterstitial(on: controller)
-			case .banner:
-				guard let view = presenter.adsView else {
-					self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, adType: adType, error: HeraError.wrongPresenterType)}
-					return
-				}
-				adsProvider.showBanner(on: view)
-			case .rewarededAd:
-				break
-			case .nativeAd:
-				break
+			} catch {
+				self.notifiyObserver { $0?.heraDidFailToShowAd(for: action, adType: adType, error: error) }
 			}
 		}
 	}
@@ -193,9 +201,60 @@ public final class Hera {
 	public func removeBanner() {
 		adsProvider?.forceHideBanner()
 	}
+	
+	public func startTestSuit() {
+		guard let config = config, config.provider == .admost else {
+			Logger.log(.warning, "App Suit only supported by Admost")
+			return
+		}
+		
+		AMRSDK.startTesterInfo(withAppId: config.providerID ?? "")
+	}
+	
+	/// Checks the current ads provider inventory of the rewarded ads
+	/// - Parameter action: The action key to be checked
+	/// - Returns: a `true` if there is ads available or `false` otherwise
+	public func isLimitReachedForRewardedAds(withAction action: String) -> Bool {
+        guard let adsProvider = adsProvider else { return false }
+        return adsProvider.didHitTheLimitForRewarded(withAction: action)
+	}
+    
+    /// Tells whether the current ads provider has rewarded ads
+    /// available to be shown to the user.
+    /// - Parameter action: The action to be checked
+    /// - Returns: `true` if ads available or `false` otherwise.
+    public func hasRewardedAdsAvailable(forAction action: String) -> Bool {
+        guard let adsProvider = adsProvider, let config = config else { return false }
+        switch config.provider {
+        case .admost:
+            return false
+        case .mopub:
+            let unitID = config.actions[action]?.unitID ?? ""
+            return adsProvider.checkRewardedAdsAvailability(forUnitID: unitID)
+        case .ironsource:
+            return adsProvider.checkRewardedAdsAvailability(forUnitID: action)
+        case .none:
+            return false
+        }
+    }
 }
 
 private extension Hera {
+	
+	func viewController(from presenter: AdsPresenter) throws -> UIViewController {
+		guard let controller = presenter.adsViewController else {
+			throw HeraError.wrongPresenterType
+		}
+		return controller
+	}
+	
+	func view(from presenter: AdsPresenter) throws -> UIView {
+		guard let view = presenter.adsView else {
+			throw HeraError.wrongPresenterType
+		}
+		return view
+	}
+	
 	typealias ConfigHandler = ((Result<Config, Swift.Error>) -> Void)
 	
 	/// Makes a network request to the Mediation backend and configures the manager
@@ -205,12 +264,7 @@ private extension Hera {
     func configure(completion: ((Result<Void, Error>) -> Void)? = nil) {
         guard let props = userProperties,
               let  apiKey = apiKey else {
-            Logger.log(.error, """
-            The Manager is misconfigured, make sure you have
-            called both initialize(apiKey: environment:) and
-            setUserProperties(_:) with the right parameters
-            consequently.
-            """)
+			Logger.log(.error, HeraError.notCongiguredProperly.errorDescription ?? "")
 			completion?(.failure(HeraError.notCongiguredProperly))
             return
         }
@@ -220,12 +274,12 @@ private extension Hera {
 			case .success(let config):
 				self.config = config
                 self.adsProvider = self.provider(from: config)
-                Logger.log(.success, "hera successfully intialized with \(config.provider) provider.")
+                Logger.log(.success, "HeraSDK successfully intialized with \(config.provider) provider.")
                 completion?(.success(()))
                 self.ovserveEvents()
 				self.setSbjectToGDPR()
 			case .failure(let error):
-                Logger.log(.error, "hera has not been intialized \(error.localizedDescription)")
+                Logger.log(.error, "HeraSDK has not been intialized \(error.localizedDescription)")
                 self.adsProvider = nil
                 completion?(.failure(error))
 			}
@@ -237,11 +291,10 @@ private extension Hera {
 	/// - Parameters:
 	///   - apiKey: The app api key
 	///   - userProps: current user properties
-	///   - completion:  A completion handler to be called after the response
+	///   - completion: A completion handler to be called after the response
 	///   retturned
 	func fetchConfigs(apiKey: String, userProps: HeraUserProperties, completion: @escaping ConfigHandler) {
 		guard let props = userProperties else {
-			Logger.log(.error, "Hera is misconfigured, make sure you have called setUserProperties(_:) with the right parameters.")
 			completion(.failure(HeraError.notCongiguredProperly))
 			return
 		}
@@ -261,8 +314,11 @@ private extension Hera {
 			}
 			return AMRProvider(appID: appId, setUserConsent: isUserConsentSet, subjectToGDPR: isSbjectToGDPR, subjectToCCPA: isSubjectToCCPA)
 		case .mopub:
-            guard let unitID = config.actions.values.first?.unitID else { return nil }
+			guard let unitID = config.actions.values.first?.unitID else { return nil }
             return MobupProvider(adUnitID: unitID)
+		case .ironsource:
+			guard let appId = config.providerID else { return nil }
+			return IronSourceProvider(appID: appId)
 		case .none: return nil
 		}
 	}
@@ -289,6 +345,9 @@ private extension Hera {
 			case let .didFailToShow(action, adType, error):
                 self.handleShowFailure(of: adType, with: action, and: error)
                 self.adContainer.setState(for: adType, from: event)
+			case .didReward:
+				self.adContainer.setState(for: .rewarded, from: .didReward)
+				self.notifiyObserver { $0?.heraDidRewardUser() }
 			default: ()
 			}
 		}
@@ -338,13 +397,8 @@ private extension Hera {
 		return (config, adsProvider, adId)
 	}
 	
-    func checkLoadingState(ofType ad: AdType) throws {
-        switch ad {
-        case .banner:
-            if adContainer.banner.state == .loading { throw HeraError.anotherOperationInProgress }
-        case .interstitial:
-            if adContainer.interstitial.state == .loading { throw HeraError.anotherOperationInProgress }
-        }
+    func checkLoadingState(ofType adType: AdType) throws {
+		if adContainer.ad(ofType: adType).state == .loading { throw HeraError.anotherOperationInProgress }
     }
     
 	func loadNext() {
@@ -369,10 +423,10 @@ private extension Hera {
                 adsProvider.loadInterstitial(id: adId, keywords: keywords, action: action)
             case .banner:
                 adsProvider.loadBanner(id: adId, keywords: keywords, action: action)
-            case .rewarededAd:
+            case .rewarded:
                 adsProvider.loadRewarededVideo(id: adId, keywords: keywords, action: action)
-            case .nativeAd:
-                adsProvider.loadNative(id: adId, keywords: keywords, action: action)
+            case .native(let config):
+                adsProvider.loadNative(id: adId, keywords: keywords, action: action, config: config)
             }
         } catch {
             notifiyObserver { $0?.heraDidFailToLoadAd(for: action, adType: adType, error: error)}
@@ -414,7 +468,7 @@ private extension Hera {
 		self.adContainer.setShowingDate(for: adType)
         self.notifiyObserver { $0?.heraDidShowAd(for: action, adType: adType) }
     }
-    
+
     func handleShowFailure(of adType: AdType, with action: String, and error: Error) {
 		if adType == .interstitial {
 			self.isInterstialAdShowing = false

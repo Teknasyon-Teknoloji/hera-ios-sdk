@@ -14,6 +14,7 @@ public protocol HeraDelegate: AnyObject {
     func heraDidShowAd(for action: String, adType: AdType)
     func heraDidFailToShowAd(for action: String, adType: AdType, error: Error)
     func heraDidFailToIntialize(error: Error)
+	func heraDidRewardUser()
 }
 
 public extension HeraDelegate {
@@ -21,4 +22,5 @@ public extension HeraDelegate {
 	func heraDidShowAd(for action: String, adType: AdType) {}
 	func heraDidFailToShowAd(for action: String, adType: AdType, error: Error) {}
     func heraDidFailToIntialize(error: Error) {}
+	func heraDidRewardUser() {}
 }

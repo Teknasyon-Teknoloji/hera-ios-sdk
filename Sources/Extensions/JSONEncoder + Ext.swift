@@ -1,6 +1,6 @@
 //
 //  JSONEncoder + Ext.swift
-//  Hera
+//  MediationManager
 //
 //  Created by Ali Ammar Hilal on 25.01.2021.
 //

@@ -26,11 +26,11 @@ protocol AdLodable {
     
     /// Loads ad of type native with the specifed id.
     /// - Parameter id: the native ad unit id/
-    func loadNative(id: String, keywords: String?, action: String)
+    func loadNative(id: String, keywords: String?, action: String, config: NativeAdConfig)
     
-	/// Force stop banner ads.
-	func forceHideBanner() 
-	
+	func checkRewardedAdsAvailability(forUnitID id: String) -> Bool
+    func didHitTheLimitForRewarded(withAction action: String) -> Bool
+    
     var setUserConsent: Bool { get set }
     var subjectToGDPR: Bool { get set }
     var subjectToCCPA: Bool { get set }
@@ -55,11 +55,14 @@ protocol AdShowable {
     
     /// Shows ad of type rewarded video with the specified id.
     /// - Parameter vc: A view controller instance that wanted to be showing ads.
-    func showRewarededVideo(on vc: UIViewController)
+	func showRewarededVideo(on vc: UIViewController, for unitID: String?)
     
     /// Shows ad of type native with the specifed id.
     /// - Parameter vc: A view controller instance that wanted to be showing ads.
-    func showNative(on vc: UIViewController)
+    func showNative(on view: UIView)
+	
+	/// Force stop banner ads.
+	func forceHideBanner()
 }
 
 /// Represents the type that can both show and load ads
