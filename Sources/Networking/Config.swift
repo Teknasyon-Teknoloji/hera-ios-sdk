@@ -37,5 +37,6 @@ extension Config {
 		case none
 		case mopub
 		case admost
+		case ironsource
 	}
 }
