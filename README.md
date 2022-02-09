@@ -274,7 +274,7 @@ Native ads let you monetize your app in a way that’s consistent with its exist
 
 ###### Step1: Define Your Ad Layout
 
-1. Create or Use one of the custom XIBs to design your ad layout
+1. Create or Use one of the custom XIBs to design your ad layout you can download it from here [CustomXibs](https://github.com/Teknasyon-Teknoloji/hera-ios-sdk/blob/master/CustomXibs.zip).
 2. Set the `File Owner` of your XIB to `DefaultNativeRenderer`
 
 3. Connect the `IBOutlets` If necessary.
