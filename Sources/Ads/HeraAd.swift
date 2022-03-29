@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents any object that can have a state.
-protocol HeraAd {
+protocol HeraAd: AnyObject {
     
     /// Current ad's presentational state.
     var state: AdState { get set }

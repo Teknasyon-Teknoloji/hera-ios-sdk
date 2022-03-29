@@ -1,0 +1,7 @@
+module ISWrapper [system] {
+	header "../../../IronSourceSDK/IronSource/IronSource.framework/Versions/A/Headers/IronSource.h"
+    
+	link "IronSourceSDK"
+
+	export *
+}

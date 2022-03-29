@@ -6,31 +6,14 @@ PODS:
   - AMRAdapterAdmost (1.4.2.0):
     - AMRAdmostSDK (~> 1.0.9)
     - AMRSDK (~> 1.4.51)
-  - AMRAdapterApplovin (10.1.1.0):
-    - AMRSDK (~> 1.4.60)
-    - AppLovinSDK (= 10.1.1)
-  - AMRAdapterChartboost (8.4.1.0):
-    - AMRSDK (~> 1.4.60)
-    - ChartboostSDK (= 8.4.1)
   - AMRAdapterFacebook (6.3.0.1):
     - AMRSDK (~> 1.4.60)
     - FBAudienceNetwork (= 6.3.0)
-  - AMRAdapterIronsource (7.1.2.2):
-    - AMRSDK (~> 1.4.60)
-    - IronSourceSDK (= 7.1.2)
-  - AMRAdapterUnity (3.6.0.0):
-    - AMRSDK (~> 1.4.51)
-    - UnityAds (= 3.6.0)
-  - AMRAdapterVungle (6.9.1.2):
-    - AMRSDK (~> 1.4.60)
-    - VungleSDK-iOS (= 6.9.1)
   - AMRAdmostSDK (1.0.9):
     - AMRSDK (~> 1.4.0)
     - KokteylLog (~> 1.0)
   - AMRSDK (1.4.60):
     - KokteylLog (~> 1.0.8)
-  - AppLovinSDK (10.1.1)
-  - ChartboostSDK (8.4.1)
   - FBAudienceNetwork (6.3.0):
     - FBSDKCoreKit/Basics (>= 7.0.1)
   - FBSDKCoreKit/Basics (9.2.0)
@@ -61,76 +44,7 @@ PODS:
   - "GoogleUtilities/NSData+zlib (7.3.1)"
   - GoogleUtilities/Reachability (7.3.1):
     - GoogleUtilities/Logger
-  - HeraSDK (1.3.1):
-    - AMRAdapterAdmob
-    - AMRAdapterAdmost
-    - AMRAdapterFacebook
-    - AMRSDK (~> 1.4)
-    - HeraSDK/AppLovin (= 1.3.1)
-    - HeraSDK/Chartboost (= 1.3.1)
-    - HeraSDK/IronSource (= 1.3.1)
-    - HeraSDK/UnityAds (= 1.3.1)
-    - HeraSDK/Vungle (= 1.3.1)
-    - MoPub-AdMob-Adapters
-    - MoPub-FacebookAudienceNetwork-Adapters
-    - mopub-ios-sdk (= 5.16.2)
-    - Moya
-  - HeraSDK/AppLovin (1.3.1):
-    - AMRAdapterAdmob
-    - AMRAdapterAdmost
-    - AMRAdapterApplovin
-    - AMRAdapterFacebook
-    - AMRSDK (~> 1.4)
-    - MoPub-AdMob-Adapters
-    - MoPub-Applovin-Adapters
-    - MoPub-FacebookAudienceNetwork-Adapters
-    - mopub-ios-sdk (= 5.16.2)
-    - Moya
-  - HeraSDK/Chartboost (1.3.1):
-    - AMRAdapterAdmob
-    - AMRAdapterAdmost
-    - AMRAdapterChartboost
-    - AMRAdapterFacebook
-    - AMRSDK (~> 1.4)
-    - MoPub-AdMob-Adapters
-    - MoPub-Chartboost-Adapters
-    - MoPub-FacebookAudienceNetwork-Adapters
-    - mopub-ios-sdk (= 5.16.2)
-    - Moya
-  - HeraSDK/IronSource (1.3.1):
-    - AMRAdapterAdmob
-    - AMRAdapterAdmost
-    - AMRAdapterFacebook
-    - AMRAdapterIronsource
-    - AMRSDK (~> 1.4)
-    - MoPub-AdMob-Adapters
-    - MoPub-FacebookAudienceNetwork-Adapters
-    - mopub-ios-sdk (= 5.16.2)
-    - MoPub-IronSource-Adapters
-    - Moya
-  - HeraSDK/UnityAds (1.3.1):
-    - AMRAdapterAdmob
-    - AMRAdapterAdmost
-    - AMRAdapterFacebook
-    - AMRAdapterUnity
-    - AMRSDK (~> 1.4)
-    - MoPub-AdMob-Adapters
-    - MoPub-FacebookAudienceNetwork-Adapters
-    - mopub-ios-sdk (= 5.16.2)
-    - MoPub-UnityAds-Adapters
-    - Moya
-  - HeraSDK/Vungle (1.3.1):
-    - AMRAdapterAdmob
-    - AMRAdapterAdmost
-    - AMRAdapterFacebook
-    - AMRAdapterVungle
-    - AMRSDK (~> 1.4)
-    - MoPub-AdMob-Adapters
-    - MoPub-FacebookAudienceNetwork-Adapters
-    - mopub-ios-sdk (= 5.16.2)
-    - MoPub-Vungle-Adapters
-    - Moya
-  - IronSourceSDK (7.1.2.0)
+  - IronSourceSDK (7.1.14.0)
   - KokteylLog (1.0.8)
   - MoPub-AdMob-Adapters (7.69.0.3):
     - MoPub-AdMob-Adapters/MoPub (= 7.69.0.3)
@@ -142,22 +56,6 @@ PODS:
     - Google-Mobile-Ads-SDK (= 7.69.0)
     - mopub-ios-sdk/Core (~> 5.16.1)
     - mopub-ios-sdk/NativeAds (~> 5.16.1)
-  - MoPub-Applovin-Adapters (10.1.1.0):
-    - MoPub-Applovin-Adapters/MoPub (= 10.1.1.0)
-    - MoPub-Applovin-Adapters/Network (= 10.1.1.0)
-  - MoPub-Applovin-Adapters/MoPub (10.1.1.0):
-    - mopub-ios-sdk/Core (~> 5.16.1)
-  - MoPub-Applovin-Adapters/Network (10.1.1.0):
-    - AppLovinSDK (= 10.1.1)
-    - mopub-ios-sdk/Core (~> 5.16.1)
-  - MoPub-Chartboost-Adapters (8.4.1.0):
-    - MoPub-Chartboost-Adapters/MoPub (= 8.4.1.0)
-    - MoPub-Chartboost-Adapters/Network (= 8.4.1.0)
-  - MoPub-Chartboost-Adapters/MoPub (8.4.1.0):
-    - mopub-ios-sdk/Core (~> 5.16.1)
-  - MoPub-Chartboost-Adapters/Network (8.4.1.0):
-    - ChartboostSDK (= 8.4.1)
-    - mopub-ios-sdk/Core (~> 5.16.1)
   - MoPub-FacebookAudienceNetwork-Adapters (6.3.0.0):
     - MoPub-FacebookAudienceNetwork-Adapters/MoPub (= 6.3.0.0)
     - MoPub-FacebookAudienceNetwork-Adapters/Network (= 6.3.0.0)
@@ -176,30 +74,6 @@ PODS:
     - mopub-ios-sdk/NativeAds
   - mopub-ios-sdk/NativeAds (5.16.2):
     - mopub-ios-sdk/Core
-  - MoPub-IronSource-Adapters (7.1.2.0.0):
-    - MoPub-IronSource-Adapters/MoPub (= 7.1.2.0.0)
-    - MoPub-IronSource-Adapters/Network (= 7.1.2.0.0)
-  - MoPub-IronSource-Adapters/MoPub (7.1.2.0.0):
-    - mopub-ios-sdk/Core (~> 5.16.1)
-  - MoPub-IronSource-Adapters/Network (7.1.2.0.0):
-    - IronSourceSDK (= 7.1.2.0)
-    - mopub-ios-sdk/Core (~> 5.16.1)
-  - MoPub-UnityAds-Adapters (3.6.0.1):
-    - MoPub-UnityAds-Adapters/MoPub (= 3.6.0.1)
-    - MoPub-UnityAds-Adapters/Network (= 3.6.0.1)
-  - MoPub-UnityAds-Adapters/MoPub (3.6.0.1):
-    - mopub-ios-sdk/Core (~> 5.16.1)
-  - MoPub-UnityAds-Adapters/Network (3.6.0.1):
-    - mopub-ios-sdk/Core (~> 5.16.1)
-    - UnityAds (= 3.6.0)
-  - MoPub-Vungle-Adapters (6.9.1.2):
-    - MoPub-Vungle-Adapters/MoPub (= 6.9.1.2)
-    - MoPub-Vungle-Adapters/Network (= 6.9.1.2)
-  - MoPub-Vungle-Adapters/MoPub (6.9.1.2):
-    - mopub-ios-sdk/Core (~> 5.16.1)
-  - MoPub-Vungle-Adapters/Network (6.9.1.2):
-    - mopub-ios-sdk/Core (~> 5.16.1)
-    - VungleSDK-iOS (= 6.9.1)
   - Moya (14.0.0):
     - Moya/Core (= 14.0.0)
   - Moya/Core (14.0.0):
@@ -210,8 +84,6 @@ PODS:
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
   - PromisesObjC (1.2.12)
-  - UnityAds (3.6.0)
-  - VungleSDK-iOS (6.9.1)
 
 DEPENDENCIES:
   - Alamofire
@@ -220,7 +92,7 @@ DEPENDENCIES:
   - AMRAdapterFacebook
   - AMRSDK
   - Google-Mobile-Ads-SDK
-  - HeraSDK
+  - IronSourceSDK
   - MoPub-AdMob-Adapters
   - MoPub-FacebookAudienceNetwork-Adapters
   - mopub-ios-sdk
@@ -231,76 +103,46 @@ SPEC REPOS:
     - Alamofire
     - AMRAdapterAdmob
     - AMRAdapterAdmost
-    - AMRAdapterApplovin
-    - AMRAdapterChartboost
     - AMRAdapterFacebook
-    - AMRAdapterIronsource
-    - AMRAdapterUnity
-    - AMRAdapterVungle
     - AMRAdmostSDK
     - AMRSDK
-    - AppLovinSDK
-    - ChartboostSDK
     - FBAudienceNetwork
     - FBSDKCoreKit
     - Google-Mobile-Ads-SDK
     - GoogleAppMeasurement
     - GoogleUserMessagingPlatform
     - GoogleUtilities
-    - HeraSDK
     - IronSourceSDK
     - KokteylLog
     - MoPub-AdMob-Adapters
-    - MoPub-Applovin-Adapters
-    - MoPub-Chartboost-Adapters
     - MoPub-FacebookAudienceNetwork-Adapters
     - mopub-ios-sdk
-    - MoPub-IronSource-Adapters
-    - MoPub-UnityAds-Adapters
-    - MoPub-Vungle-Adapters
     - Moya
     - nanopb
     - PromisesObjC
-    - UnityAds
-    - VungleSDK-iOS
 
 SPEC CHECKSUMS:
   Alamofire: bfbc4c2fe5909b1d94fb4ef2277c6b3727ef5dae
   AMRAdapterAdmob: 0a327354f9f04d684900a0857dca3472b318c101
   AMRAdapterAdmost: 660baa7d906f62b9ef1adebc01ce55cad2551b15
-  AMRAdapterApplovin: 8add1cd3b3b46e243b608d0f9c1399c0d868bedc
-  AMRAdapterChartboost: 655e2774ff6f01f24489b7a405a3dec4f6d30c8d
   AMRAdapterFacebook: 6ae6781fc627a852342767abfc43900801624319
-  AMRAdapterIronsource: b1bd46a8b0617edfcb998db83e86d8ef720e3d68
-  AMRAdapterUnity: 618044e43c3ed84c746b47fd23e66acef3302161
-  AMRAdapterVungle: 1204327e557af3e2264b6b4e2033afa2969dd4ca
   AMRAdmostSDK: 549fc61c4b2b3a87ee9a4ca360d6c0c613746500
   AMRSDK: a4ef327512899a786f973574dc9468ef88622ba7
-  AppLovinSDK: 575c3c64158878fdd445ea3d48f4fd2233633336
-  ChartboostSDK: 299f9e83cf9c6d6ea8154ace88831a3cb171fce6
   FBAudienceNetwork: 58b4d0f2359783e5bc9ee59f138b4fda43173ac4
   FBSDKCoreKit: dace5abafc2fd9272733e6d027bcf18102712117
   Google-Mobile-Ads-SDK: 2f288748a42920d1c744946a460896a95b0e9110
   GoogleAppMeasurement: 1c863b1161fc3c8cf614a7460d1be6a7c262aab3
   GoogleUserMessagingPlatform: b168e8c46cd8f92aa3e34b584c4ca78a411ce367
   GoogleUtilities: e1d9ed4e544fc32a93e00e721400cbc3f377200d
-  HeraSDK: c38b434862f95119a2768fa1731504231f8ff70c
-  IronSourceSDK: 71bfad4e69db3b100ce85a80515aedb919a1e1c4
+  IronSourceSDK: 7359355050983d7efb5bb779f9129a32138c3c22
   KokteylLog: 5e776068ae4a8456052e8df5d42f2bbd8c08c852
   MoPub-AdMob-Adapters: 992e64aa78bc08275bf57210e199543ce5919f3f
-  MoPub-Applovin-Adapters: 2eef7df7e4ea7f87a2e615e2428537ef497df3aa
-  MoPub-Chartboost-Adapters: 5e8f2914a6e0a5e9734ed3acedfe6950ccfea579
   MoPub-FacebookAudienceNetwork-Adapters: 23d56c756983c8cec8d2e1e16dcfdaa1565c83c7
   mopub-ios-sdk: ce5aa12abe59d42cb8866b1297bdff7b6a42e273
-  MoPub-IronSource-Adapters: 4b05c61b66b17e243903666200972723caf9a7c7
-  MoPub-UnityAds-Adapters: 60d47bcf3456c70138dc0d53e9bd4f90b12887fe
-  MoPub-Vungle-Adapters: 9cf6888abd6764db3f241a43aa2b7f43ac5df9ff
   Moya: 5b45dacb75adb009f97fde91c204c1e565d31916
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
-  UnityAds: 3f88cf3d3b11991de1025fcf0e3109fd86035fba
-  VungleSDK-iOS: 09abfadbcc04e0748ce33c6bd02282e9961125ba
 
-PODFILE CHECKSUM: d67617b327a00a891b695ff9baffd88a0acb9b3b
+PODFILE CHECKSUM: 520c224cd078ec4e6a5f9bde64594cdd660ea680
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.11.2

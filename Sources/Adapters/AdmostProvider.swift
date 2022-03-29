@@ -1,6 +1,6 @@
 //
 //  AMRProvider.swift
-//  Hera
+//  MediationManager
 //
 //  Created by Ali Ammar Hilal on 18.01.2021.
 //
@@ -9,7 +9,7 @@ import UIKit
 import AMRSDK
 
 final class AMRProvider: NSObject, AdsProvider {
-
+	
 	var adEventHandler: ((AdEvent) -> Void)?
 	
 	private let appID: String
@@ -17,10 +17,12 @@ final class AMRProvider: NSObject, AdsProvider {
 	private var interstitial: AMRInterstitial?
 	private var rewarded: AMRRewardedVideo?
 	
+	private var natives: [NativeContext<AMRBanner>] = []
+	
 	private var bannerAction: String = ""
 	private var interstitialAction: String = ""
 	private var rewardedAction: String = ""
-	
+		
 	var setUserConsent: Bool {
 		didSet {
 			AMRSDK.setUserConsent(setUserConsent)
@@ -80,8 +82,14 @@ final class AMRProvider: NSObject, AdsProvider {
 		rewardedAction = action
 	}
 	
-	func loadNative(id: String, keywords: String?, action: String) {
-		fatalError("unsupported ad format")
+	func loadNative(id: String, keywords: String?, action: String, config: NativeAdConfig) {
+		guard let native = AMRBanner(forZoneId: id) else { return }
+		native.customNativeSize = config.size
+		native.customeNativeXibName = config.nibName
+		native.delegate = self
+		native.load()
+		native.viewController = UIApplication.topViewController()
+		natives.append(.init(view: native, config: config, action: action))
 	}
 	
 	func showBanner(on view: UIView) {
@@ -104,13 +112,19 @@ final class AMRProvider: NSObject, AdsProvider {
 		}
 	}
 	
-	func showRewarededVideo(on vc: UIViewController) {
-		Logger.log(.warning, "unsupported ad format")
+	func showRewarededVideo(on vc: UIViewController, for unitID: String?) {
+		if let rewarded = rewarded {
+			rewarded.show(from: vc)
+		}
 	}
 	
-	func showNative(on vc: UIViewController) {
-		Logger.log(.warning, "unsupported ad format")
-		
+	func showNative(on view: UIView) {
+		//        guard let native = native, native.bannerView != nil else {
+		//            bannerDidFailToShow(HeraError.nilBanner)
+		//            return
+		//        }
+		//
+		//        view.addSubview(native.bannerView)
 	}
 	
 	func forceHideBanner() {
@@ -119,13 +133,21 @@ final class AMRProvider: NSObject, AdsProvider {
 		banner.bannerView = nil
 		self.banner = nil
 	}
+
+	func checkRewardedAdsAvailability(forUnitID id: String) -> Bool {
+		rewarded?.isLoaded == true || rewarded?.isLoading == true
+	}
+    
+    func didHitTheLimitForRewarded(withAction action: String) -> Bool {
+        false
+    }
 }
 
 fileprivate extension AMRProvider {
 	func start() {
 		AMRSDK.setUserConsent(setUserConsent)
 		AMRSDK.subject(toGDPR: subjectToGDPR)
-		AMRSDK.subject(toCCPA: setUserConsent)
+		AMRSDK.subject(toCCPA: subjectToCCPA)
 		AMRSDK.start(withAppId: appID)
 		AMRBannerView.observeLifeCycles()
 		BannerStateObserver.bannerDidShowHandler = bannerDidShow
@@ -136,7 +158,13 @@ fileprivate extension AMRProvider {
 // MARK: Banner Delegate
 extension AMRProvider: AMRBannerDelegate {
 	func didReceive(_ banner: AMRBanner!) {
-		adEventHandler?(.didLoad(action: bannerAction, adType: .banner))
+		
+		if banner.customeNativeXibName != nil, let native = natives.first(where: { $0.view == banner })  {
+			native.config.adView = banner.bannerView
+			adEventHandler?(.didLoad(action: native.action, adType: .native(config: native.config)))
+		} else {
+			adEventHandler?(.didLoad(action: bannerAction, adType: .banner))
+		}
 	}
 	
 	func didClick(_ banner: AMRBanner!) {
@@ -144,7 +172,12 @@ extension AMRProvider: AMRBannerDelegate {
 	}
 	
 	func didFail(toReceive banner: AMRBanner!, error: AMRError!) {
-		adEventHandler?(.didFailToLoad(action: bannerAction, adType: .banner, error: error))
+		if banner.customeNativeXibName != nil, let native = natives.first(where: { $0.view == banner })  {
+			native.config.adView = banner.bannerView
+			adEventHandler?(.didFailToLoad(action: native.action, adType: .native(config: native.config), error: error))
+		} else {
+			adEventHandler?(.didFailToLoad(action: bannerAction, adType: .banner, error: error))
+		}
 	}
 	
 	func bannerDidShow() {
@@ -187,11 +220,11 @@ extension AMRProvider: AMRInterstitialDelegate {
 // MARK: Rewarded Video Delegate
 extension AMRProvider: AMRRewardedVideoDelegate {
 	func didReceive(_ rewardedVideo: AMRRewardedVideo!) {
-		// adEventHandler?(.didLoad(action: rewardedAction))
+		adEventHandler?(.didLoad(action: rewardedAction, adType: .rewarded))
 	}
 	
 	func didFail(toReceive rewardedVideo: AMRRewardedVideo!, error: AMRError!) {
-		// adEventHandler?(.didFailToLoad(action: rewardedAction, error: error))
+		adEventHandler?(.didFailToLoad(action: rewardedAction, adType: .rewarded, error: error))
 	}
 	
 	func didClick(_ rewardedVideo: AMRRewardedVideo!) {
@@ -199,15 +232,19 @@ extension AMRProvider: AMRRewardedVideoDelegate {
 	}
 	
 	func didShow(_ rewardedVideo: AMRRewardedVideo!) {
-		// adEventHandler?(.didShow(action: rewardedAction))
+		adEventHandler?(.didShow(action: rewardedAction, adType: .rewarded))
 	}
 	
 	func didFail(toShow rewardedVideo: AMRRewardedVideo!, error: AMRError!) {
-		// adEventHandler?(.didFailToShow(action: rewardedAction, error: error))
+		adEventHandler?(.didFailToShow(action: rewardedAction, adType: .rewarded, error: error))
 	}
 	
 	func didDismiss(_ rewardedVideo: AMRRewardedVideo!) {
-		// adEventHandler?(.dismissed)
+		adEventHandler?(.dismissed)
+	}
+	
+	func didComplete(_ rewardedVideo: AMRRewardedVideo!) {
+		adEventHandler?(.didReward)
 	}
 }
 
@@ -219,5 +256,5 @@ extension AMRProvider: AMRNativeAdBaseViewDelegate {
 	}
 }
 
-extension AMRError: Error { }
+extension AMRError: Error {}
 extension AMRError: LocalizedError {}

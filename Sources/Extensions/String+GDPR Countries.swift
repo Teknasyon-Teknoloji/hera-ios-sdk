@@ -1,6 +1,6 @@
 //
 //  String+GDPR Countries.swift
-//  Hera
+//  MediationManager
 //
 //  Created by Ali Ammar Hilal on 28.01.2021.
 //
@@ -41,6 +41,6 @@ internal extension String {
     }
     
     var isSubjectToGDBR: Bool {
-        gdprCountries.contains(self)
+        gdprCountries.contains(self.uppercased())
     }
 }

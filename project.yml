@@ -24,6 +24,11 @@ targets:
     postbuildScripts:
       - script: swiftlint
         name: SwiftLint
+  ISWrapper:
+    type: framework
+    platform: iOS
+    deploymentTarget: 10.0
+    sources: [Sources/ISWrapper]
   HeraExample:
     type: application
     platform: iOS

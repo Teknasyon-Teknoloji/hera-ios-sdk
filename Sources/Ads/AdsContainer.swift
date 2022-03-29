@@ -15,51 +15,39 @@ final class AdsContainer {
     
     /// Banner ad type
     var banner = Banner()
+	
+	/// Rewarded Ads
+	var rewarded = RewardedAd()
+    
+    /// Rewarded Ads
+    var native = Native()
 }
 
 // MARK: - Helpers
 extension AdsContainer {
     
     func setShowingDate(_ date: (() -> Date) = { Date() }, for adType: AdType) {
-        switch adType {
-        case .interstitial:
-            self.interstitial.lastShowingDate = date()
-        case .banner:
-            self.banner.lastShowingDate = date()
-        }
+		ad(ofType: adType).lastShowingDate = date()
     }
     
     func setLoadingDate(_ date: (() -> Date) = { Date() }, for adType: AdType) {
-        switch adType {
-        case .interstitial:
-            self.interstitial.lastLoadingDate = date()
-        case .banner:
-            self.banner.lastLoadingDate = date()
-        }
-    }
-    
-    func ad(ofType type: AdType) -> HeraAd {
-        switch type {
-        case .banner: return banner
-        case .interstitial: return interstitial
-        }
+		ad(ofType: adType).lastLoadingDate = date()
     }
     
     func setState(for type: AdType, from event: AdEvent) {
-        switch type {
-        case .interstitial:
-            self.interstitial.state = event.mapToAdState()
-        case .banner:
-            self.banner.state = event.mapToAdState()
-        }
+		ad(ofType: type).state = event.mapToAdState()
     }
     
     func setState(_ state: AdState, for type: AdType) {
-        switch type {
-        case .interstitial:
-            self.interstitial.state = state
-        case .banner:
-            self.banner.state = state
-        }
+		ad(ofType: type).state = state
     }
+	
+	func ad(ofType type: AdType) -> HeraAd {
+		switch type {
+		case .banner: return banner
+		case .interstitial: return interstitial
+		case .rewarded: return rewarded
+        case .native: return native
+        }
+	}
 }
