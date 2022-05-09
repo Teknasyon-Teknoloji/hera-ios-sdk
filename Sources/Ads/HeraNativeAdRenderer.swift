@@ -7,9 +7,8 @@
 
 import UIKit
 import AMRSDK
-import MoPubSDK
 
-public protocol HeraNativeAdRenderer: MPNativeAdRendering, AnyObject { }
+public protocol HeraNativeAdRenderer: AnyObject { }
 
 open class DefaultNativeRenderer: UIView, HeraNativeAdRenderer {
  

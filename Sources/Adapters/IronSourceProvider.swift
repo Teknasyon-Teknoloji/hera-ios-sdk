@@ -22,7 +22,7 @@ final class IronSourceProvider: NSObject, AdsProvider {
 	private var rewardedAction: String = ""
 
 	private var banner: ISBannerView?
-	
+		
 	init(appID: String) {
 		super.init()
 		start(withAppID: appID)
@@ -33,12 +33,14 @@ final class IronSourceProvider: NSObject, AdsProvider {
 		IronSource.setBannerDelegate(self)
 		IronSource.setRewardedVideoDelegate(self)
 		ISIntegrationHelper.validateIntegration()
+		IronSource.add(self)
 		IronSource.initWithAppKey(id)
 	}
 
 	func loadBanner(id: String, keywords: String?, action: String) {
 		bannerAction = action
 		IronSource.loadBanner(with: UIApplication.topViewController() ?? .init(nibName: nil, bundle: nil), size: ISBannerSize(description: "HERA_BANNER", width: 320, height: 50))
+	
 	}
 	
 	func loadInterstitial(id: String, keywords: String?, action: String) {
@@ -116,10 +118,11 @@ extension IronSourceProvider: ISInterstitialDelegate {
 	
 	func interstitialDidOpen() {
 		adEventHandler?(.willAppear)
+	
 	}
 	
 	func interstitialDidClose() {
-		adEventHandler?(.dismissed)
+        adEventHandler?(.dismissed(action: interstitialAction, adType: .interstitial))
 	}
 	
 	func interstitialDidShow() {
@@ -158,7 +161,7 @@ extension IronSourceProvider: ISRewardedVideoDelegate {
 	}
 	
 	func rewardedVideoDidClose() {
-		adEventHandler?(.dismissed)
+        adEventHandler?(.dismissed(action: rewardedAction, adType: .rewarded))
 	}
 	
 	func rewardedVideoDidStart() {
@@ -202,5 +205,25 @@ extension IronSourceProvider: ISBannerDelegate {
 	
 	func bannerDidShow() {
 		adEventHandler?(.didShow(action: bannerAction, adType: .banner))
+	}
+}
+
+extension IronSourceProvider: ISImpressionDataDelegate {
+	
+	func impressionDataDidSucceed(_ impressionData: ISImpressionData!) {
+		print(impressionData.ad_unit, "IS AD TYPE")
+		guard let adType = AdUnit.InternalAdType(rawValue: impressionData.ad_unit ?? "") else {
+			Logger.log(.error, "Impression data doesnt conatin ad type.. ignoring")
+			return
+		}
+		let impression = AdImpression(
+			provider: .ironsource,
+			adType: adType.mapToAdType(),
+			revenue: Double(impressionData.revenue ?? 0),
+			network: impressionData.ad_network ?? "N/A",
+			biddingType: impressionData.instance_name
+		)
+		
+		adEventHandler?(.newAdImpression(impression))
 	}
 }

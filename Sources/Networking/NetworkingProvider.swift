@@ -38,7 +38,7 @@ enum Service: TargetType {
         switch self {
         case .getConfig(_, let appKey):
             return [
-                "AppKey": appKey,
+                "appkey": appKey,
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             ]

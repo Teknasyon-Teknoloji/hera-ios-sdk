@@ -119,12 +119,7 @@ final class AMRProvider: NSObject, AdsProvider {
 	}
 	
 	func showNative(on view: UIView) {
-		//        guard let native = native, native.bannerView != nil else {
-		//            bannerDidFailToShow(HeraError.nilBanner)
-		//            return
-		//        }
-		//
-		//        view.addSubview(native.bannerView)
+		Logger.log(.warning, "Calling this method has no effect")
 	}
 	
 	func forceHideBanner() {
@@ -133,7 +128,7 @@ final class AMRProvider: NSObject, AdsProvider {
 		banner.bannerView = nil
 		self.banner = nil
 	}
-
+	
 	func checkRewardedAdsAvailability(forUnitID id: String) -> Bool {
 		rewarded?.isLoaded == true || rewarded?.isLoading == true
 	}
@@ -213,7 +208,7 @@ extension AMRProvider: AMRInterstitialDelegate {
 	}
 	
 	func didDismiss(_ interstitial: AMRInterstitial!) {
-		adEventHandler?(.dismissed)
+        adEventHandler?(.dismissed(action: interstitialAction, adType: .interstitial))
 	}
 }
 
@@ -240,7 +235,7 @@ extension AMRProvider: AMRRewardedVideoDelegate {
 	}
 	
 	func didDismiss(_ rewardedVideo: AMRRewardedVideo!) {
-		adEventHandler?(.dismissed)
+        adEventHandler?(.dismissed(action: rewardedAction, adType: .rewarded))
 	}
 	
 	func didComplete(_ rewardedVideo: AMRRewardedVideo!) {
@@ -252,7 +247,7 @@ extension AMRProvider: AMRRewardedVideoDelegate {
 extension AMRProvider: AMRNativeAdBaseViewDelegate {
 	
 	func didDismissNativeInterstitial() {
-		adEventHandler?(.dismissed)
+        adEventHandler?(.dismissed(action: interstitialAction, adType: .interstitial))
 	}
 }
 
