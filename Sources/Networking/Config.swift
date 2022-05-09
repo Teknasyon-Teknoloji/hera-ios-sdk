@@ -31,12 +31,3 @@ struct Config: Decodable, Equatable {
 		adInterval = try values.decode(TimeInterval.self, forKey: .adInterval)
 	}
 }
-
-extension Config {
-	enum Provider: String, Decodable, Equatable {
-		case none
-		case mopub
-		case admost
-		case ironsource
-	}
-}

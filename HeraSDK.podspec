@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'HeraSDK'
-  s.version          = '2.1.0'
+  s.version          = '2.2.0'
   s.summary          = 'An abstraction layer used to manage Ads.'
   
   s.description      = <<-DESC
@@ -15,23 +15,27 @@ Pod::Spec.new do |s|
 
   s.default_subspecs = 'ISWrapper', 'Core'
   s.static_framework = true
-  s.swift_version = "5.0"
+  s.swift_version = "5.1"
   s.ios.deployment_target = '10.0'
 
-  s.pod_target_xcconfig = { 'ONLY_ACTIVE_ARCH' => 'YES' }
-  s.user_target_xcconfig = { 'ONLY_ACTIVE_ARCH' => 'YES' }
+  s.pod_target_xcconfig = { 
+    'ONLY_ACTIVE_ARCH' => 'YES'
+  }
+  s.user_target_xcconfig = { 
+    'ONLY_ACTIVE_ARCH' => 'YES'
+  }
     s.dependency 'IronSourceSDK'
 
   # Core
   s.subspec 'Core' do |ss|
-    ss.dependency 'AMRSDK', '~> 1.4'
+    ss.dependency 'AMRSDK', '~> 1.5'
     ss.dependency 'AMRAdapterAdmost'
-    ss.dependency 'mopub-ios-sdk', '~> 5.18'
     ss.dependency 'Moya'
-    ss.dependency 'MoPub-FacebookAudienceNetwork-Adapters'
-    ss.dependency 'MoPub-AdMob-Adapters'
     ss.dependency 'AMRAdapterAdmob'
+    ss.dependency 'GoogleMobileAdsMediationTestSuite'
     ss.dependency 'AMRAdapterFacebook'
+    ss.dependency 'Google-Mobile-Ads-SDK'
+    ss.dependency 'GoogleMobileAdsMediationFacebook'
     ss.source_files = 'Sources/**/*.swift'
     ss.ios.deployment_target = '10.0'
   end
@@ -54,48 +58,47 @@ Pod::Spec.new do |s|
 
   # IronSource Adapter
   s.subspec 'IronSource' do |ironSource|
-    # ironSource.dependency 'AMRAdapterIronsource'
-    ironSource.dependency 'MoPub-IronSource-Adapters'
+    ironSource.dependency 'AMRAdapterIronsource'
+    ironSource.dependency 'GoogleMobileAdsMediationIronSource'
   end
 
   # UnityAds Adapter
   s.subspec 'UnityAds' do |unityAds|
     unityAds.dependency 'AMRAdapterUnity'
-    unityAds.dependency 'MoPub-UnityAds-Adapters'
+    unityAds.dependency 'GoogleMobileAdsMediationUnity'
   end
 
   # AppLovin Adapter
   s.subspec 'AppLovin' do |appLovin|
     appLovin.dependency 'AMRAdapterApplovin'
-    appLovin.dependency 'MoPub-Applovin-Adapters'
+    appLovin.dependency 'GoogleMobileAdsMediationAppLovin'
   end
 
    # Chartboost Adapter
    s.subspec 'Chartboost' do |chartboost|
     chartboost.dependency 'AMRAdapterChartboost'
-    chartboost.dependency 'MoPub-Chartboost-Adapters'
+    chartboost.dependency 'GoogleMobileAdsMediationChartboost'
   end
 
   # Vungle Adapter
   s.subspec 'Vungle' do |vungle|
     vungle.dependency 'AMRAdapterVungle'
-    # vungle.dependency 'MoPub-Vungle-Adapters'
+    vungle.dependency 'GoogleMobileAdsMediationVungle'
   end
 
     # TikTok Adapter
   s.subspec 'TikTok' do |tiktok|
     tiktok.dependency 'AMRAdapterTiktok'
-    # tiktok.dependency 'MoPub-Pangle-Adapters'
   end
   
   s.subspec 'AdColony' do |ss| 
     ss.dependency 'AMRAdapterAdcolony'
-    ss.dependency  'MoPub-AdColony-Adapters'
+    ss.dependency 'GoogleMobileAdsMediationAdColony'
   end
 
   s.subspec 'Inmobi' do |ss| 
     ss.dependency 'AMRAdapterInmobi'
-    ss.dependency 'MoPub-InMobiMonetization-Adapters'
+    ss.dependency 'GoogleMobileAdsMediationInMobi'
   end
   
   s.subspec 'Criteo' do |ss|
@@ -104,7 +107,19 @@ Pod::Spec.new do |s|
 
   s.subspec 'Pubnative' do |ss|
     ss.dependency 'AMRAdapterPubnative'
-    ss.dependency 'MoPub-HyBid-Adapters'
+  end
+
+  s.subspec 'MyTarget' do |ss|
+    ss.dependency 'AMRAdapterMytarget'
+    ss.dependency 'GoogleMobileAdsMediationMyTarget'
+  end
+
+  s.subspec 'Yandex' do |ss|
+    ss.dependency 'AMRAdapterYandex'
+  end
+
+  s.subspec 'Smaato' do |ss|
+    ss.dependency 'AMRAdapterSmaato'
   end
 
 end
