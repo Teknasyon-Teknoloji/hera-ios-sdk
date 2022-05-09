@@ -30,6 +30,9 @@ public final class Hera {
             
 	var isInterstialAdShowing = false
 	
+	private var impresionObserver: ((AdImpression) -> Void)?
+	private var adEventsObserver: ((AdEvent) -> Void)?
+
 	/// Some ads providers support rewarded ads inventory tracking
 	/// this will return true if the current active provider supports ads
 	/// inventory tracking.
@@ -81,6 +84,22 @@ public final class Hera {
 		self.userProperties = userProperties
 		self.intializationDate = Date()
 		configure()
+	}
+	
+	public var isPresentingFullScreenAd: Bool {
+		(adContainer.interstitial.state == .showning && isInterstialAdShowing) || adContainer.rewarded.state == .showning
+	}
+	
+	/// Monitors the impression data from that provider and notify the listener about it.
+	/// - Parameter handler: Impression call back.
+	public func listenForAdImpressions(handler: @escaping(AdImpression) -> Void) {
+		impresionObserver = handler
+	}
+	
+	/// Monitors the impression data from that provider and notify the listener about it.
+	/// - Parameter handler: Impression call back.
+	public func listenForAdEvents(handler: @escaping(AdEvent) -> Void) {
+		adEventsObserver = handler
 	}
 	
     /// Updates the user premium and landing dismissal count, calling this method will trigger
@@ -235,6 +254,8 @@ public final class Hera {
             return adsProvider.checkRewardedAdsAvailability(forUnitID: action)
         case .none:
             return false
+        case .admob:
+            return false
         }
     }
 }
@@ -314,13 +335,15 @@ private extension Hera {
 			}
 			return AMRProvider(appID: appId, setUserConsent: isUserConsentSet, subjectToGDPR: isSbjectToGDPR, subjectToCCPA: isSubjectToCCPA)
 		case .mopub:
-			guard let unitID = config.actions.values.first?.unitID else { return nil }
-            return MobupProvider(adUnitID: unitID)
+			Logger.log(.error, "MobPub has been deprecated, please switch to another provider.")
+			return nil
 		case .ironsource:
 			guard let appId = config.providerID else { return nil }
 			return IronSourceProvider(appID: appId)
-		case .none: return nil
-		}
+        case .admob:
+            return AdmobProvider()
+        case .none: return nil
+        }
 	}
 	
 	/// Observes different events that happen in `adsProvider` and notifies
@@ -328,6 +351,7 @@ private extension Hera {
 	func ovserveEvents() {
 		adsProvider?.adEventHandler = { [weak self] event in
 			guard let self = self else { return }
+			self.adEventsObserver?(event)
 			Logger.log(.debug, "Hera Did Recived Event: \(event)")
 			switch event {
 			case let .didLoad(action, adType):
@@ -348,6 +372,8 @@ private extension Hera {
 			case .didReward:
 				self.adContainer.setState(for: .rewarded, from: .didReward)
 				self.notifiyObserver { $0?.heraDidRewardUser() }
+			case let .newAdImpression(impression):
+				self.impresionObserver?(impression)
 			default: ()
 			}
 		}

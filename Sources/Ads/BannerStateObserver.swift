@@ -6,7 +6,6 @@
 //
 
 import AMRSDK
-import MoPubSDK
 
 /// The banner ads doesnt provide full life cycle events. `BannerStateObserver`
 /// tries to observe those event and notify the intersted adapter about it.
@@ -47,28 +46,6 @@ extension AMRBannerView {
     static func observeLifeCycles() {
         let originalSelector = #selector(self.willMove(toWindow:))
         let swizzledSelector = #selector(self.swizzled_viewWillMove(toWindow:))
-		guard let originalMethod = class_getInstanceMethod(self, originalSelector) else { return }
-		guard let swizzledMethod = class_getInstanceMethod(self, swizzledSelector) else { return }
-        method_exchangeImplementations(originalMethod, swizzledMethod)
-    }
-}
-
-// MARK: - Mobup
-extension MPAdView {
-
-    @objc dynamic func swizzled_layoutSubViews() {
-        if self.window != nil || superview?.isHidden == false {
-            BannerStateObserver.notify(with: .success(()))
-        } else {
-            BannerStateObserver.notify(with: .failure(.viewDoesNotHaveVisibleUIWindow))
-        }
-        
-        swizzled_layoutSubViews()
-    }
-    
-    static func observeLifeCycles() {
-        let originalSelector = #selector(MPAdView.layoutSubviews)
-        let swizzledSelector = #selector(MPAdView.swizzled_layoutSubViews)
 		guard let originalMethod = class_getInstanceMethod(self, originalSelector) else { return }
 		guard let swizzledMethod = class_getInstanceMethod(self, swizzledSelector) else { return }
         method_exchangeImplementations(originalMethod, swizzledMethod)

@@ -17,17 +17,18 @@ public enum AdEvent {
 	case willAppear
 	case didAppear
 	case willDisappear // (action: String)
-	case didDisappear // (action: String)
+	case didDisappear(action: String)
 	case willPresentModal
 	case didDismissModal
 	case didExpire
 	case clicked // (action: String)
-	case dismissed // (action: String)
+	case dismissed(action: String, adType: AdType)
 	case willLeaveApp
 	case shouldRewardUser
 	case didTrackImpression
     case willLoad
 	case didReward
+	case newAdImpression(AdImpression)
 }
 
 extension AdEvent {

@@ -40,7 +40,7 @@ struct AdUnit: Decodable, Equatable {
 		ignoreTimer = try values.decodeIfPresent(Bool.self, forKey: .ignoreTimer)
 	}
     
-    private enum InternalAdType: String, Equatable {
+	enum InternalAdType: String, Equatable {
         case interstitial
         case banner
         case rewarded
