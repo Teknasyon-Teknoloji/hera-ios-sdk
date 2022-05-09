@@ -8,20 +8,11 @@
   + Hera no longer supports MoPub medation. 
 
 ## Version 2.1.0
-
-* **Features**
-  + Add support for IronSource Mediation.
-  + Add support for custom native ads.
-  + Add support for rewarded video ads.
-
-## Version 2.1.0
-
-* **Features**
-  + Add support for IronSource Mediation.
-  + Add support for custom native ads.
-  + Add support for rewarded video ads.
-  + Add support for Inmobi, Criteo and Pubnative ad networks.
-  
+- **Features**
+  - Add support for IronSource Mediation.
+  - Add support for custom native ads.
+  - Add support for rewarded video ads.
+  - Add support for Inmobi, Criteo and Pubnative ad networks.
 
 ## Version 2.0.0
 
@@ -50,3 +41,4 @@
 
 * **Bug Fixes**
   + Prevent crashing when using wrong provider ID.
+
